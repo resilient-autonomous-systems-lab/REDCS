@@ -13,7 +13,7 @@ thresh_1 = 0.3;
 thresh_2 = 0.5;
 
 mini_batch_size = 5000;
-n_batch         = 100;
+n_batch         = 1000;
 n_samples       = n_batch*mini_batch_size;
 
 generate_data_flag = true;
@@ -28,7 +28,7 @@ if generate_data_flag == true
 
 
     %%% Attack data
-    n_sim_samples = 1000;  % Number of simulation runs per epoch used to train descriminators
+    n_sim_samples = 10000;  % Number of simulation runs per epoch used to train descriminators
     Z_attack_data    = rand(3*n_attacked_nodes,n_sim_samples);
 
     % attack start times
