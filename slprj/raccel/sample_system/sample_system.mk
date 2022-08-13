@@ -1,366 +1,513 @@
-# Copyright 1994-2021 The MathWorks, Inc.
-#
-# File    : ert_lcc64.tmf   
-#
-# Abstract:
-#       Template makefile for building a PC-based stand-alone embedded real-time 
-#       version of Simulink model using generated C code and 
-#			LCC compiler Version 2.4
-#
-#       This makefile attempts to conform to the guidelines specified in the
-#       IEEE Std 1003.2-1992 (POSIX) standard. It is designed to be used
-#       with GNU Make (gmake) which is located in matlabroot/bin/win64.
-#
-#       Note that this template is automatically customized by the build 
-#       procedure to create "<model>.mk"
-#
-#       The following defines can be used to modify the behavior of the
-#       build:
-#         OPT_OPTS       - Optimization options. Default is none. To enable 
-#                          debugging specify as OPT_OPTS=-g4. 
-#         OPTS           - User specific compile options.
-#         USER_SRCS      - Additional user sources, such as files needed by
-#                          S-functions.
-#         USER_INCLUDES  - Additional include paths 
-#                          (i.e. USER_INCLUDES="-Iwhere-ever -Iwhere-ever2")
-#                          (For Lcc, have a '/'as file separator before the 
-#                          file name instead of a '\' . 
-#                          i.e.,  d:\work\proj1/myfile.c - reqd for 'gmake')
-#       This template makefile is designed to be used with a system target
-#       file that contains 'rtwgensettings.BuildDirSuffix' see ert.tlc
+###########################################################################
+## Makefile generated for component 'sample_system'. 
+## 
+## Makefile     : sample_system.mk
+## Generated on : Fri Aug 12 23:33:54 2022
+## Final product: ./sample_system.exe
+## Product type : executable
+## 
+###########################################################################
 
-#------------------------ Macros read by make_rtw ------------------------------
-#
-# The following macros are read by the build procedure:
-#
-#  MAKECMD         - This is the command used to invoke the make utility
-#  HOST            - What platform this template makefile is targeted for
-#                    (i.e. PC or UNIX)
-#  BUILD           - Invoke make from the build procedure (yes/no)?
-#  SYS_TARGET_FILE - Name of system target file.
+###########################################################################
+## MACROS
+###########################################################################
 
-MAKECMD         = "%MATLAB%\bin\win64\gmake"
-SHELL           = cmd
-HOST            = PC
-BUILD           = yes
-SYS_TARGET_FILE = any
+# Macro Descriptions:
+# PRODUCT_NAME            Name of the system to build
+# MAKEFILE                Name of this makefile
+# COMPILER_COMMAND_FILE   Compiler command listing model reference header paths
+# CMD_FILE                Command file
 
-# Opt in to simplified format by specifying compatible Toolchain
-TOOLCHAIN_NAME = "LCC-win64 v2.4.1 | gmake (64-bit Windows)"
-
-MAKEFILE_FILESEP = /
-
-#---------------------- Tokens expanded by make_rtw ----------------------------
-#
-# The following tokens, when wrapped with "|>" and "<|" are expanded by the
-# build procedure.
-#
-#  MODEL_NAME          - Name of the Simulink block diagram
-#  MODEL_MODULES       - Any additional generated source modules
-#  MAKEFILE_NAME       - Name of makefile created from template makefile <model>.mk
-#  MATLAB_ROOT         - Path to where MATLAB is installed.
-#  S_FUNCTIONS_LIB     - List of S-functions libraries to link. 
-#  NUMST               - Number of sample times
-#  NCSTATES            - Number of continuous states
-#  BUILDARGS           - Options passed in at the command line.
-#  MULTITASKING        - yes (1) or no (0): Is solver mode multitasking
-#  INTEGER_CODE        - yes (1) or no (0): Is generated code purely integer
-#  MAT_FILE            - yes (1) or no (0): Should mat file logging be done,
-#                        if 0, the generated code runs indefinitely
-#  MULTI_INSTANCE_CODE - Is the generated code multi instantiable (1/0)?
-#  SHRLIBTARGET        - Is this build intended for generation of a shared library instead 
-#                        of executable (1/0)?
-#  MAKEFILEBUILDER_TGT - Is this build performed by the MakefileBuilder class
-#                        e.g. to create a PIL executable?
-#  STANDALONE_SUPPRESS_EXE - Build the standalone target but only create object code modules 
-#                            and do not build an executable
-
-MODEL                = sample_system
-MODULES              = rt_logging_simtarget.c rtGetInf.c rtGetNaN.c rt_nonfinite.c sample_system.c sample_system_capi.c sample_system_data.c sample_system_tgtconn.c rt_logging_mmi_simtarget.c rtw_modelmap_utils_simtarget.c raccel_main.c raccel_sup.c raccel_mat.c simulink_solver_api.c raccel_utils.c common_utils.c ext_svr.c updown.c ext_work.c rtiostream_interface.c rtiostream_tcpip.c rtiostream_utils.c
-PRODUCT              = sample_system.exe
-MAKEFILE             = sample_system.mk
-MATLAB_ROOT          = C:/Program Files/MATLAB/R2022a
-ALT_MATLAB_ROOT      = C:/PROGRA~1/MATLAB/R2022a
-START_DIR            = C:/Users/Anubi/GOOGLE~1/FSU/Projects/DOE_CE~1/ATTACK~1
-S_FUNCTIONS_LIB      = $(MATLAB_ROOT)\sys\lcc64\lcc64\lib64\wsock32.lib
-NUMST                = 3
-NCSTATES             = 20
-BUILDARGS            =  RSIM_SOLVER_SELECTION=2 PCMATLABROOT="C:\\Program Files\\MATLAB\\R2022a" EXTMODE_STATIC_ALLOC=0 EXTMODE_STATIC_ALLOC_SIZE=1000000 EXTMODE_TRANSPORT=0 TMW_EXTMODE_TESTING=0 RSIM_PARAMETER_LOADING=1 OPTS="-DTGTCONN -DIS_SIM_TARGET -DNRT -DRSIM_PARAMETER_LOADING -DRSIM_WITH_SL_SOLVER -DENABLE_SLEXEC_SSBRIDGE=1 -DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0 -DON_TARGET_WAIT_FOR_START=0 -DTID01EQ=0"
-MULTITASKING         = 0
-INTEGER_CODE         = 0
-MAT_FILE             = 1
-ALLOCATIONFCN        = 0
-ONESTEPFCN           = 0
-TERMFCN              = 1
-MULTI_INSTANCE_CODE  = 0
-CLASSIC_INTERFACE    = 1
-MODELREFS            = 
-SHRLIBTARGET         = 0
-MAKEFILEBUILDER_TGT  = 0
-ENABLE_SLEXEC_SSBRIDGE  = 1
-STANDALONE_SUPPRESS_EXE = 0
-OPTIMIZATION_FLAGS      = 
-ADDITIONAL_LDFLAGS      = 
-DEFINES_CUSTOM          = -DEXT_MODE -DIS_RAPID_ACCEL -DisSimStruct64FeatureOn=1 
-DEFINES_OTHER           = -DHAVESTDIO
-COMPILE_FLAGS_OTHER     = -mcmodel=medium
-SYSTEM_LIBS             = -L"C:\Program Files\MATLAB\R2022a\extern\lib\win64\microsoft" libmwipp.lib libut.lib libmx.lib libmex.lib libmat.lib libmwmathutil.lib libmwslsa_sim.lib libmwslexec_simbridge.lib libmwsl_fileio.lib libmwsigstream.lib libmwsl_AsyncioQueue.lib libmwsl_services.lib libmwsdi_raccel.lib libmwi18n.lib libmwcoder_target_services.lib libmwcoder_ParamTuningTgtAppSvc.lib libmwslpointerutil.lib libmwsl_simtarget_instrumentation.lib libfixedpoint.lib libmwslexec_simlog.lib libmwstringutil.lib
+PRODUCT_NAME              = sample_system
+MAKEFILE                  = sample_system.mk
+MATLAB_ROOT               = C:/PROGRA~1/MATLAB/R2022a
+MATLAB_BIN                = C:/PROGRA~1/MATLAB/R2022a/bin
+MATLAB_ARCH_BIN           = $(MATLAB_BIN)/win64
+START_DIR                 = C:/Users/Abelb/Desktop/REDCS
+SOLVER                    = 
+SOLVER_OBJ                = 
+CLASSIC_INTERFACE         = 1
+TGT_FCN_LIB               = ISO_C
 MODEL_HAS_DYNAMICALLY_LOADED_SFCNS = 0
-
-#--------------------------- Model and reference models -----------------------
-MODELLIB                  = 
-MODELREF_LINK_LIBS        = 
-MODELREF_LINK_RSPFILE     = sample_system_ref.rsp
 RELATIVE_PATH_TO_ANCHOR   = ../../..
-FMT_RELATIVE_PATH_TO_ANCHOR   = $(subst /,\,$(RELATIVE_PATH_TO_ANCHOR))
-# NONE: standalone, SIM: modelref sim, RTW: modelref coder target
-MODELREF_TARGET_TYPE       = NONE
-MODELREF_SFCN_SUFFIX       = _msf
+COMPILER_COMMAND_FILE     = sample_system_comp.rsp
+CMD_FILE                  = sample_system.rsp
+C_STANDARD_OPTS           = -fwrapv
+CPP_STANDARD_OPTS         = -fwrapv
+
+###########################################################################
+## TOOLCHAIN SPECIFICATIONS
+###########################################################################
+
+# Toolchain Name:          MinGW64 | gmake (64-bit Windows)
+# Supported Version(s):    6.x
+# ToolchainInfo Version:   2022a
+# Specification Revision:  1.0
+# 
+#-------------------------------------------
+# Macros assumed to be defined elsewhere
+#-------------------------------------------
+
+# C_STANDARD_OPTS
+# CPP_STANDARD_OPTS
+# MINGW_ROOT
+# MINGW_C_STANDARD_OPTS
+
+#-----------
+# MACROS
+#-----------
+
+WARN_FLAGS            = -Wall -W -Wwrite-strings -Winline -Wstrict-prototypes -Wnested-externs -Wpointer-arith -Wcast-align
+WARN_FLAGS_MAX        = $(WARN_FLAGS) -Wcast-qual -Wshadow
+CPP_WARN_FLAGS        = -Wall -W -Wwrite-strings -Winline -Wpointer-arith -Wcast-align
+CPP_WARN_FLAGS_MAX    = $(CPP_WARN_FLAGS) -Wcast-qual -Wshadow
+MW_EXTERNLIB_DIR      = $(MATLAB_ROOT)/extern/lib/win64/mingw64
+SHELL                 = %SystemRoot%/system32/cmd.exe
+
+TOOLCHAIN_SRCS = 
+TOOLCHAIN_INCS = 
+TOOLCHAIN_LIBS = -lws2_32
+
+#------------------------
+# BUILD TOOL COMMANDS
+#------------------------
+
+# C Compiler: GNU C Compiler
+CC_PATH = $(MINGW_ROOT)
+CC = "$(CC_PATH)/gcc"
+
+# Linker: GNU Linker
+LD_PATH = $(MINGW_ROOT)
+LD = "$(LD_PATH)/g++"
+
+# C++ Compiler: GNU C++ Compiler
+CPP_PATH = $(MINGW_ROOT)
+CPP = "$(CPP_PATH)/g++"
+
+# C++ Linker: GNU C++ Linker
+CPP_LD_PATH = $(MINGW_ROOT)
+CPP_LD = "$(CPP_LD_PATH)/g++"
+
+# Archiver: GNU Archiver
+AR_PATH = $(MINGW_ROOT)
+AR = "$(AR_PATH)/ar"
+
+# MEX Tool: MEX Tool
+MEX_PATH = $(MATLAB_ARCH_BIN)
+MEX = "$(MEX_PATH)/mex"
+
+# Download: Download
+DOWNLOAD =
+
+# Execute: Execute
+EXECUTE = $(PRODUCT)
+
+# Builder: GMAKE Utility
+MAKE_PATH = %MATLAB%/bin/win64
+MAKE = "$(MAKE_PATH)/gmake"
 
 
-#-- In the case when directory name contains space ---
-ifneq ($(MATLAB_ROOT),$(ALT_MATLAB_ROOT))
-MATLAB_ROOT := $(ALT_MATLAB_ROOT)
-endif
+#-------------------------
+# Directives/Utilities
+#-------------------------
 
-#--------------------------- Tool Specifications -------------------------------
+CDEBUG              = -g
+C_OUTPUT_FLAG       = -o
+LDDEBUG             = -g
+OUTPUT_FLAG         = -o
+CPPDEBUG            = -g
+CPP_OUTPUT_FLAG     = -o
+CPPLDDEBUG          = -g
+OUTPUT_FLAG         = -o
+ARDEBUG             =
+STATICLIB_OUTPUT_FLAG =
+MEX_DEBUG           = -g
+RM                  = @del
+ECHO                = @echo
+MV                  = @move
+RUN                 =
 
-LCC = $(MATLAB_ROOT)\sys\lcc64\lcc64
-include $(MATLAB_ROOT)\rtw\c\tools\lcc64tools.mak
+#----------------------------------------
+# "Faster Builds" Build Configuration
+#----------------------------------------
 
-CMD_FILE             = $(MODEL).rsp
-
-#------------------------------ Include Path -----------------------------------
-
-# Additional includes 
-
-ADD_INCLUDES = \
-	-I$(START_DIR) \
-	-I$(START_DIR)/slprj/raccel/sample_system \
-	-I$(MATLAB_ROOT)/rtw/c/src/rapid \
-	-I$(MATLAB_ROOT)/rtw/c/raccel \
-	-I$(MATLAB_ROOT)/rtw/c/src/ext_mode/common \
-	-I$(MATLAB_ROOT)/toolbox/coder/rtiostream/src \
-	-I$(MATLAB_ROOT)/extern/include \
-	-I$(MATLAB_ROOT)/simulink/include \
-	-I$(MATLAB_ROOT)/rtw/c/src \
-	-I$(MATLAB_ROOT)/toolbox/coder/rtiostream/src/rtiostreamtcpip \
-	-I$(MATLAB_ROOT)/toolbox/coder/rtiostream/src/utils \
-
-
-# see COMPILER_INCLUDES from lcctool.mak
-
-INCLUDES = -I. -I$(RELATIVE_PATH_TO_ANCHOR) $(ADD_INCLUDES) \
-           $(COMPILER_INCLUDES) $(USER_INCLUDES)
-
-#-------------------------------- C Flags --------------------------------------
-
-# Optimization Options
-OPT_OPTS = $(DEFAULT_OPT_OPTS)
-
-# General User Options
-OPTS =
-
-# Compiler options, etc:
-ifneq ($(OPTIMIZATION_FLAGS),)
-CC_OPTS = $(OPTS) $(ANSI_OPTS) $(COMPILE_FLAGS_OTHER) $(OPTIMIZATION_FLAGS)
-else
-CC_OPTS = $(OPTS) $(ANSI_OPTS) $(COMPILE_FLAGS_OTHER) $(OPT_OPTS) 
-endif
-
-# Defines
-CPP_REQ_DEFINES = -DMODEL=$(MODEL) -DNUMST=$(NUMST) -DNCSTATES=$(NCSTATES) \
-		  -DMAT_FILE=$(MAT_FILE) -DINTEGER_CODE=$(INTEGER_CODE) \
-		  -DONESTEPFCN=$(ONESTEPFCN) -DTERMFCN=$(TERMFCN) \
-		  -DHAVESTDIO -DMULTI_INSTANCE_CODE=$(MULTI_INSTANCE_CODE) \
-		  -DCLASSIC_INTERFACE=$(CLASSIC_INTERFACE) \
-		  -DALLOCATIONFCN=$(ALLOCATIONFCN)
-
-ifeq ($(MODELREF_TARGET_TYPE),SIM)
-ifneq ($(ENABLE_SLEXEC_SSBRIDGE), 0)
-CPP_REQ_DEFINES += -DENABLE_SLEXEC_SSBRIDGE=$(ENABLE_SLEXEC_SSBRIDGE)
-endif
-else
-CPP_REQ_DEFINES += -DMT=$(MULTITASKING)
-endif
-
-CPP_REQ_DEFINES += -DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=$(MODEL_HAS_DYNAMICALLY_LOADED_SFCNS)
-
-DEFINES = $(DEFINES_CUSTOM) $(CPP_REQ_DEFINES) $(DEFINES_OTHER)
-
-CFLAGS = $(DEFAULT_CFLAGS) $(CC_OPTS) $(DEFINES) $(INCLUDES) -w -noregistrylookup
-
-# Additional flags required for SIM target
-CFLAGS += -dll -Zp8 -noregistrylookup -DLCC_WIN64
-
-ifeq ($(OPT_OPTS),$(DEFAULT_OPT_OPTS))
-LDFLAGS = -s -L$(LIB)
-else
-LDFLAGS = -L$(LIB)
-endif
-
-#-------------------------- Additional Libraries ------------------------------
-
-LIBS =
+ARFLAGS              = ruvs
+CFLAGS               = -c $(MINGW_C_STANDARD_OPTS) -m64 \
+                       -O0
+CPPFLAGS             = -c $(CPP_STANDARD_OPTS) -m64 \
+                       -O0
+CPP_LDFLAGS          =  -static -m64
+CPP_SHAREDLIB_LDFLAGS  = -shared -Wl,--no-undefined \
+                         -Wl,--out-implib,$(notdir $(basename $(PRODUCT))).lib
+DOWNLOAD_FLAGS       =
+EXECUTE_FLAGS        =
+LDFLAGS              =  -static -m64
+MEX_CPPFLAGS         =
+MEX_CPPLDFLAGS       =
+MEX_CFLAGS           =
+MEX_LDFLAGS          =
+MAKE_FLAGS           = -f $(MAKEFILE)
+SHAREDLIB_LDFLAGS    = -shared -Wl,--no-undefined \
+                       -Wl,--out-implib,$(notdir $(basename $(PRODUCT))).lib
 
 
-LIBS +=  $(S_FUNCTIONS_LIB)
 
-#----------------------------- Source Files ------------------------------------
-ADD_SRCS =
+###########################################################################
+## OUTPUT INFO
+###########################################################################
 
-SRCS = $(ADD_SRCS) $(MODULES)
+PRODUCT = ./sample_system.exe
+PRODUCT_TYPE = "executable"
+BUILD_TYPE = "Top-Level Standalone Executable"
 
-USER_SRCS =
+###########################################################################
+## INCLUDE PATHS
+###########################################################################
 
-USER_OBJS       = $(USER_SRCS:.c=.obj)
-LOCAL_USER_OBJS = $(notdir $(USER_OBJS))
+INCLUDES_BUILDINFO = 
 
-OBJS      = $(SRCS:.c=.obj) $(USER_OBJS)
+INCLUDES = $(INCLUDES_BUILDINFO)
 
-DEF_FILE = $(MODEL).def
+###########################################################################
+## DEFINES
+###########################################################################
 
-#--------------------------------- Rules ---------------------------------------
-BIN_SETTING        = $(LD) $(LDFLAGS) $(ADDITIONAL_LDFLAGS) -o $(PRODUCT)
-ifeq ($(MODELREF_TARGET_TYPE),NONE)
-  ifeq ($(SHRLIBTARGET),1)
-    BIN_SETTING        = $(LD) $(LDFLAGS) $(ADDITIONAL_LDFLAGS) -dll -entry LibMain -o $(PRODUCT)
-    $(PRODUCT) : $(OBJS) $(LIBS) $(MODELREF_LINK_LIBS)
-	$(BIN_SETTING) @$(CMD_FILE) $(LOCAL_USER_OBJS) @$(MODELREF_LINK_RSPFILE) $(LIBS) $(SYSTEM_LIBS) $(MODEL).def
-	@cmd /C "echo ### Created dynamically linked library: $@"
-  else
-    ifeq ($(MAKEFILEBUILDER_TGT),1)
-      PREBUILT_OBJS       = $(MODULES:.c=.obj)
-      $(PRODUCT) : $(PREBUILT_OBJS) $(OBJS) $(MODELLIB) $(LIBS) $(MODELREF_LINK_LIBS)
-	$(BIN_SETTING) $(PREBUILT_OBJS) @$(CMD_FILE) $(LOCAL_USER_OBJS) $(MODELLIB) @$(MODELREF_LINK_RSPFILE) $(LIBS)
-	@cmd /C "echo ### Created executable: $@"
-    else
-      ifeq ($(STANDALONE_SUPPRESS_EXE), 1)
-        .PHONY: $(PRODUCT)
-        $(PRODUCT) : $(OBJS) $(LIBS) $(MODELREF_LINK_LIBS)
-	@cmd /C "echo ### Created object modules $@"
-      else
-        $(PRODUCT) : $(OBJS) $(LIBS) $(MODELREF_LINK_LIBS)
-	$(BIN_SETTING) @$(CMD_FILE) $(LOCAL_USER_OBJS) @$(MODELREF_LINK_RSPFILE) $(LIBS) $(SYSTEM_LIBS)
-	@cmd /C "echo ### Created executable: $@"
-      endif
-    endif
-  endif
-else
- ifeq ($(MODELREF_TARGET_TYPE),SIM)  
-  $(PRODUCT) : $(OBJS) $(LIBS)
-	@if exist $(MODELLIB) del "$(MODELLIB)"
-	$(LIBCMD) /out:$(MODELLIB) @$(CMD_FILE) $(LOCAL_USER_OBJS)
-	@cmd /C "echo ### Created $(MODELLIB)"  
- else
-  $(PRODUCT) : $(OBJS)
-	@if exist $(MODELLIB) del "$(MODELLIB)"
-	$(LIBCMD) /out:$(MODELLIB) @$(CMD_FILE) $(LOCAL_USER_OBJS)
-	@cmd /C "echo ### Created $(MODELLIB)"
-	@cmd /C "echo ### Created library: $@"
- endif
-endif
+DEFINES_BUILD_ARGS = -DCLASSIC_INTERFACE=1 -DALLOCATIONFCN=0 -DONESTEPFCN=0 -DTERMFCN=1 -DMULTI_INSTANCE_CODE=0 -DINTEGER_CODE=0
+DEFINES_CUSTOM = -DEXT_MODE -DIS_RAPID_ACCEL -DisSimStruct64FeatureOn=1
+DEFINES_OPTS = -DTGTCONN -DIS_SIM_TARGET -DNRT -DRSIM_PARAMETER_LOADING -DRSIM_WITH_SL_SOLVER -DENABLE_SLEXEC_SSBRIDGE=1 -DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0 -DON_TARGET_WAIT_FOR_START=0 -DTID01EQ=0
+DEFINES_STANDARD = -DMODEL=sample_system -DNUMST=3 -DNCSTATES=20 -DHAVESTDIO
+
+DEFINES = $(DEFINES_BUILD_ARGS) $(DEFINES_CUSTOM) $(DEFINES_OPTS) $(DEFINES_STANDARD)
+
+###########################################################################
+## SOURCE FILES
+###########################################################################
+
+SRCS = $(MATLAB_ROOT)/rtw/c/src/rt_logging_simtarget.c $(START_DIR)/slprj/raccel/sample_system/rtGetInf.c $(START_DIR)/slprj/raccel/sample_system/rtGetNaN.c $(START_DIR)/slprj/raccel/sample_system/rt_nonfinite.c $(START_DIR)/slprj/raccel/sample_system/sample_system.c $(START_DIR)/slprj/raccel/sample_system/sample_system_capi.c $(START_DIR)/slprj/raccel/sample_system/sample_system_data.c $(START_DIR)/slprj/raccel/sample_system/sample_system_tgtconn.c rt_logging_mmi_simtarget.c rtw_modelmap_utils_simtarget.c $(MATLAB_ROOT)/rtw/c/raccel/raccel_main.c $(MATLAB_ROOT)/rtw/c/raccel/raccel_sup.c $(MATLAB_ROOT)/rtw/c/raccel/raccel_mat.c $(MATLAB_ROOT)/simulink/include/simulink_solver_api.c $(MATLAB_ROOT)/rtw/c/src/rapid/raccel_utils.c $(MATLAB_ROOT)/rtw/c/src/rapid/common_utils.c $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/ext_svr.c $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/updown.c $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/ext_work.c $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/rtiostream_interface.c $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/rtiostreamtcpip/rtiostream_tcpip.c $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/utils/rtiostream_utils.c
+
+ALL_SRCS = $(SRCS)
+
+###########################################################################
+## OBJECTS
+###########################################################################
+
+OBJS = rt_logging_simtarget.obj rtGetInf.obj rtGetNaN.obj rt_nonfinite.obj sample_system.obj sample_system_capi.obj sample_system_data.obj sample_system_tgtconn.obj rt_logging_mmi_simtarget.obj rtw_modelmap_utils_simtarget.obj raccel_main.obj raccel_sup.obj raccel_mat.obj simulink_solver_api.obj raccel_utils.obj common_utils.obj ext_svr.obj updown.obj ext_work.obj rtiostream_interface.obj rtiostream_tcpip.obj rtiostream_utils.obj
+
+ALL_OBJS = $(OBJS)
+
+###########################################################################
+## PREBUILT OBJECT FILES
+###########################################################################
+
+PREBUILT_OBJS = 
+
+###########################################################################
+## LIBRARIES
+###########################################################################
+
+LIBS = 
+
+###########################################################################
+## SYSTEM LIBRARIES
+###########################################################################
+
+SYSTEM_LIBS =  -L"$(MATLAB_ROOT)/extern/lib/win64/mingw64" -llibmwipp -llibut -llibmx -llibmex -llibmat -llibmwmathutil -llibmwslsa_sim -llibmwslexec_simbridge -llibmwsl_fileio -llibmwsigstream -llibmwsl_AsyncioQueue -llibmwsl_services -llibmwsdi_raccel -llibmwi18n -llibmwcoder_target_services -llibmwcoder_ParamTuningTgtAppSvc -llibmwslpointerutil -llibmwsl_simtarget_instrumentation -llibfixedpoint -llibmwslexec_simlog -llibmwstringutil
+
+###########################################################################
+## ADDITIONAL TOOLCHAIN FLAGS
+###########################################################################
+
+#---------------
+# C Compiler
+#---------------
+
+CFLAGS_ = -mcmodel=medium
+CFLAGS_TFL = -msse2
+CFLAGS_BASIC = $(DEFINES) $(INCLUDES) @$(COMPILER_COMMAND_FILE)
+
+CFLAGS += $(CFLAGS_) $(CFLAGS_TFL) $(CFLAGS_BASIC)
+
+#-----------------
+# C++ Compiler
+#-----------------
+
+CPPFLAGS_ = -mcmodel=medium
+CPPFLAGS_TFL = -msse2
+CPPFLAGS_BASIC = $(DEFINES) $(INCLUDES) @$(COMPILER_COMMAND_FILE)
+
+CPPFLAGS += $(CPPFLAGS_) $(CPPFLAGS_TFL) $(CPPFLAGS_BASIC)
+
+#---------------------
+# MEX C++ Compiler
+#---------------------
+
+MEX_CPP_Compiler_BASIC =  @$(COMPILER_COMMAND_FILE)
+
+MEX_CPPFLAGS += $(MEX_CPP_Compiler_BASIC)
+
+#-----------------
+# MEX Compiler
+#-----------------
+
+MEX_Compiler_BASIC =  @$(COMPILER_COMMAND_FILE)
+
+MEX_CFLAGS += $(MEX_Compiler_BASIC)
+
+###########################################################################
+## INLINED COMMANDS
+###########################################################################
+
+
+MINGW_C_STANDARD_OPTS = $(C_STANDARD_OPTS)
+
+
+###########################################################################
+## PHONY TARGETS
+###########################################################################
+
+.PHONY : all build buildobj clean info prebuild download execute
+
+
+all : build
+	@echo "### Successfully generated all binary outputs."
+
+
+build : prebuild $(PRODUCT)
+
+
+buildobj : prebuild $(OBJS) $(PREBUILT_OBJS)
+	@echo "### Successfully generated all binary outputs."
+
+
+prebuild : 
+
+
+download : $(PRODUCT)
+
+
+execute : download
+	@echo "### Invoking postbuild tool "Execute" ..."
+	$(EXECUTE) $(EXECUTE_FLAGS)
+	@echo "### Done invoking postbuild tool."
+
+
+###########################################################################
+## FINAL TARGET
+###########################################################################
+
+#-------------------------------------------
+# Create a standalone executable            
+#-------------------------------------------
+
+$(PRODUCT) : $(OBJS) $(PREBUILT_OBJS)
+	@echo "### Creating standalone executable "$(PRODUCT)" ..."
+	$(LD) $(LDFLAGS) -o $(PRODUCT) @$(CMD_FILE) $(SYSTEM_LIBS) $(TOOLCHAIN_LIBS)
+	@echo "### Created: $(PRODUCT)"
+
+
+###########################################################################
+## INTERMEDIATE TARGETS
+###########################################################################
+
+#---------------------
+# SOURCE-TO-OBJECT
+#---------------------
 
 %.obj : %.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -o "$@" "$<"
 
-%.obj : %.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+
+%.obj : %.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
 
 %.obj : $(RELATIVE_PATH_TO_ANCHOR)/%.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -o "$@" "$<"
 
-%.obj : $(RELATIVE_PATH_TO_ANCHOR)/%.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
 
-%.obj : $(MATLAB_ROOT)/rtw/c/ert/%.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+%.obj : $(RELATIVE_PATH_TO_ANCHOR)/%.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
+
+%.obj : $(START_DIR)/%.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+%.obj : $(START_DIR)/%.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
+
+%.obj : $(START_DIR)/slprj/raccel/sample_system/%.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+%.obj : $(START_DIR)/slprj/raccel/sample_system/%.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
 
 %.obj : $(MATLAB_ROOT)/rtw/c/src/%.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -o "$@" "$<"
 
-%.obj : $(MATLAB_ROOT)/rtw/c/src/%.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
 
-%.obj : $(MATLAB_ROOT)/rtw/c/src/%.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+%.obj : $(MATLAB_ROOT)/rtw/c/src/%.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
 
 %.obj : $(MATLAB_ROOT)/simulink/src/%.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+%.obj : $(MATLAB_ROOT)/simulink/src/%.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
 
 %.obj : $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/%.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+%.obj : $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/%.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
 
 %.obj : $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/rtiostreamtcpip/%.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+%.obj : $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/rtiostreamtcpip/%.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
 
 %.obj : $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/utils/%.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+%.obj : $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/utils/%.cpp
+	$(CPP) $(CPPFLAGS) -o "$@" "$<"
+
 
 rt_logging_simtarget.obj : $(MATLAB_ROOT)/rtw/c/src/rt_logging_simtarget.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/src/rt_logging_simtarget.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+rtGetInf.obj : $(START_DIR)/slprj/raccel/sample_system/rtGetInf.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+rtGetNaN.obj : $(START_DIR)/slprj/raccel/sample_system/rtGetNaN.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+rt_nonfinite.obj : $(START_DIR)/slprj/raccel/sample_system/rt_nonfinite.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+sample_system.obj : $(START_DIR)/slprj/raccel/sample_system/sample_system.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+sample_system_capi.obj : $(START_DIR)/slprj/raccel/sample_system/sample_system_capi.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+sample_system_data.obj : $(START_DIR)/slprj/raccel/sample_system/sample_system_data.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
+
+sample_system_tgtconn.obj : $(START_DIR)/slprj/raccel/sample_system/sample_system_tgtconn.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 raccel_main.obj : $(MATLAB_ROOT)/rtw/c/raccel/raccel_main.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/raccel/raccel_main.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 raccel_sup.obj : $(MATLAB_ROOT)/rtw/c/raccel/raccel_sup.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/raccel/raccel_sup.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 raccel_mat.obj : $(MATLAB_ROOT)/rtw/c/raccel/raccel_mat.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/raccel/raccel_mat.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 simulink_solver_api.obj : $(MATLAB_ROOT)/simulink/include/simulink_solver_api.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/simulink/include/simulink_solver_api.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 raccel_utils.obj : $(MATLAB_ROOT)/rtw/c/src/rapid/raccel_utils.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/src/rapid/raccel_utils.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 common_utils.obj : $(MATLAB_ROOT)/rtw/c/src/rapid/common_utils.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/src/rapid/common_utils.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 ext_svr.obj : $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/ext_svr.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/ext_svr.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 updown.obj : $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/updown.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/updown.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 ext_work.obj : $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/ext_work.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/ext_work.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 rtiostream_interface.obj : $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/rtiostream_interface.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/rtiostream_interface.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 rtiostream_tcpip.obj : $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/rtiostreamtcpip/rtiostream_tcpip.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/rtiostreamtcpip/rtiostream_tcpip.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
+
 
 rtiostream_utils.obj : $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/utils/rtiostream_utils.c
-	$(CC) -c -Fo$(@F) $(CFLAGS) $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/utils/rtiostream_utils.c
+	$(CC) $(CFLAGS) -o "$@" "$<"
 
 
+###########################################################################
+## DEPENDENCIES
+###########################################################################
 
-%.obj : $(MATLAB_ROOT)/rtw/c/src/%.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
-
-%.obj : $(MATLAB_ROOT)/simulink/src/%.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
-
-%.obj : $(MATLAB_ROOT)/rtw/c/src/ext_mode/common/%.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
-
-%.obj : $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/rtiostreamtcpip/%.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
-
-%.obj : $(MATLAB_ROOT)/toolbox/coder/rtiostream/src/utils/%.C
-	$(CC) -c -Fo$(@F) $(CFLAGS) $<
+$(ALL_OBJS) : rtw_proj.tmw $(COMPILER_COMMAND_FILE) $(MAKEFILE)
 
 
+###########################################################################
+## MISCELLANEOUS TARGETS
+###########################################################################
 
-# Libraries:
+info : 
+	@echo "### PRODUCT = $(PRODUCT)"
+	@echo "### PRODUCT_TYPE = $(PRODUCT_TYPE)"
+	@echo "### BUILD_TYPE = $(BUILD_TYPE)"
+	@echo "### INCLUDES = $(INCLUDES)"
+	@echo "### DEFINES = $(DEFINES)"
+	@echo "### ALL_SRCS = $(ALL_SRCS)"
+	@echo "### ALL_OBJS = $(ALL_OBJS)"
+	@echo "### LIBS = $(LIBS)"
+	@echo "### MODELREF_LIBS = $(MODELREF_LIBS)"
+	@echo "### SYSTEM_LIBS = $(SYSTEM_LIBS)"
+	@echo "### TOOLCHAIN_LIBS = $(TOOLCHAIN_LIBS)"
+	@echo "### CFLAGS = $(CFLAGS)"
+	@echo "### LDFLAGS = $(LDFLAGS)"
+	@echo "### SHAREDLIB_LDFLAGS = $(SHAREDLIB_LDFLAGS)"
+	@echo "### CPPFLAGS = $(CPPFLAGS)"
+	@echo "### CPP_LDFLAGS = $(CPP_LDFLAGS)"
+	@echo "### CPP_SHAREDLIB_LDFLAGS = $(CPP_SHAREDLIB_LDFLAGS)"
+	@echo "### ARFLAGS = $(ARFLAGS)"
+	@echo "### MEX_CFLAGS = $(MEX_CFLAGS)"
+	@echo "### MEX_CPPFLAGS = $(MEX_CPPFLAGS)"
+	@echo "### MEX_LDFLAGS = $(MEX_LDFLAGS)"
+	@echo "### MEX_CPPLDFLAGS = $(MEX_CPPLDFLAGS)"
+	@echo "### DOWNLOAD_FLAGS = $(DOWNLOAD_FLAGS)"
+	@echo "### EXECUTE_FLAGS = $(EXECUTE_FLAGS)"
+	@echo "### MAKE_FLAGS = $(MAKE_FLAGS)"
 
 
+clean : 
+	$(ECHO) "### Deleting all derived files..."
+	$(RM) $(subst /,\,$(PRODUCT))
+	$(RM) $(subst /,\,$(ALL_OBJS))
+	$(ECHO) "### Deleted all derived files."
 
 
-
-#----------------------------- Dependencies ------------------------------------
-
-$(OBJS) : $(MAKEFILE) rtw_proj.tmw

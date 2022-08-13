@@ -1,0 +1,11 @@
+-IC:/Users/Abelb/Desktop/REDCS
+-IC:/Users/Abelb/Desktop/REDCS/slprj/raccel/sample_system
+-IC:/Program\ Files/MATLAB/R2022a/rtw/c/src/rapid
+-IC:/Program\ Files/MATLAB/R2022a/rtw/c/raccel
+-IC:/Program\ Files/MATLAB/R2022a/rtw/c/src/ext_mode/common
+-IC:/Program\ Files/MATLAB/R2022a/toolbox/coder/rtiostream/src
+-IC:/Program\ Files/MATLAB/R2022a/extern/include
+-IC:/Program\ Files/MATLAB/R2022a/simulink/include
+-IC:/Program\ Files/MATLAB/R2022a/rtw/c/src
+-IC:/Program\ Files/MATLAB/R2022a/toolbox/coder/rtiostream/src/rtiostreamtcpip
+-IC:/Program\ Files/MATLAB/R2022a/toolbox/coder/rtiostream/src/utils

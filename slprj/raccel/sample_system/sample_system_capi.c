@@ -53,9 +53,6 @@ rtBlockParameters [ ] = { { 15 , TARGET_STRING (
 , 0 } , { 16 , TARGET_STRING ( "sample_system/Uniform Random Number" ) ,
 TARGET_STRING ( "Maximum" ) , 0 , 2 , 0 } , { 0 , ( NULL ) , ( NULL ) , 0 , 0
 , 0 } } ; static int_T rt_LoggedStateIdxList [ ] = { - 1 } ; static const
-rtwCAPI_Signals rtRootInputs [ ] = { { 0 , 0 , ( NULL ) , ( NULL ) , 0 , 0 ,
-0 , 0 , 0 } } ; static const rtwCAPI_Signals rtRootOutputs [ ] = { { 0 , 0 ,
-( NULL ) , ( NULL ) , 0 , 0 , 0 , 0 , 0 } } ; static const
 rtwCAPI_ModelParameters rtModelParameters [ ] = { { 17 , TARGET_STRING ( "A"
 ) , 0 , 3 , 0 } , { 18 , TARGET_STRING ( "B" ) , 0 , 3 , 0 } , { 19 ,
 TARGET_STRING ( "C" ) , 0 , 4 , 0 } , { 20 , TARGET_STRING ( "Cc" ) , 0 , 5 ,
@@ -105,14 +102,13 @@ int8_T ) 0 , ( uint8_T ) 0 } , { ( const void * ) & rtcapiStoredFloats [ 1 ]
 , ( const void * ) & rtcapiStoredFloats [ 0 ] , ( int8_T ) 2 , ( uint8_T ) 0
 } , { ( const void * ) & rtcapiStoredFloats [ 0 ] , ( const void * ) &
 rtcapiStoredFloats [ 2 ] , ( int8_T ) 1 , ( uint8_T ) 0 } } ; static
-rtwCAPI_ModelMappingStaticInfo mmiStatic = { { rtBlockSignals , 15 ,
-rtRootInputs , 0 , rtRootOutputs , 0 } , { rtBlockParameters , 2 ,
-rtModelParameters , 14 } , { ( NULL ) , 0 } , { rtDataTypeMap ,
-rtDimensionMap , rtFixPtMap , rtElementMap , rtSampleTimeMap ,
-rtDimensionArray } , "float" , { 2693835777U , 872802496U , 4133713670U ,
-3670903414U } , ( NULL ) , 0 , ( boolean_T ) 0 , rt_LoggedStateIdxList } ;
-const rtwCAPI_ModelMappingStaticInfo * sample_system_GetCAPIStaticMap ( void
-) { return & mmiStatic ; }
+rtwCAPI_ModelMappingStaticInfo mmiStatic = { { rtBlockSignals , 15 , ( NULL )
+, 0 , ( NULL ) , 0 } , { rtBlockParameters , 2 , rtModelParameters , 14 } , {
+( NULL ) , 0 } , { rtDataTypeMap , rtDimensionMap , rtFixPtMap , rtElementMap
+, rtSampleTimeMap , rtDimensionArray } , "float" , { 3479393406U ,
+2832823330U , 194449782U , 1295974402U } , ( NULL ) , 0 , ( boolean_T ) 0 ,
+rt_LoggedStateIdxList } ; const rtwCAPI_ModelMappingStaticInfo *
+sample_system_GetCAPIStaticMap ( void ) { return & mmiStatic ; }
 #ifndef HOST_CAPI_BUILD
 void sample_system_InitializeDataMapInfo ( void ) { rtwCAPI_SetVersion ( ( *
 rt_dataMapInfoPtr ) . mmi , 1 ) ; rtwCAPI_SetStaticMap ( ( *
