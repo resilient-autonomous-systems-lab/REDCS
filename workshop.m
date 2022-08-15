@@ -3,103 +3,10 @@ clc
 clear
 close all
 
+%% load system base parameters
+Run_sim;
 
-
-%% Generator parameters
-alpha = 0.7;  % probability of success
-beta  = 1 - alpha;
-
-thresh_1 = 0.3;
-thresh_2 = 0.5;
-
-mini_batch_size = 5000;
-n_batch         = 1000;
-n_samples       = n_batch*mini_batch_size;
-
-generate_data_flag = true;
-
-%% attack parameters and data 
-Run_sim
-if generate_data_flag == true
-    attack_start_time_interval       = round([0.1 0.2]*t_sim_stop);
-    delta_attack_start_time_interval = attack_start_time_interval(2) - attack_start_time_interval(1);
-    attack_time_span_max = round(0.3*t_sim_stop);
-    attack_max = 50;
-
-
-    %%% Attack data
-    n_sim_samples = 10000;  % Number of simulation runs per epoch used to train descriminators
-    Z_attack_data    = rand(3*n_attacked_nodes,n_sim_samples);
-
-    % attack start times
-    attack_start_times = attack_start_time_interval(1) + ...
-        delta_attack_start_time_interval*Z_attack_data(1:n_attacked_nodes,:);
-
-    % attack time spans
-    attack_time_span   = attack_time_span_max*Z_attack_data(n_attacked_nodes+1:2*n_attacked_nodes,:);
-
-    % attack final deviations
-    attack_final_deviations = attack_max*Z_attack_data(2*n_attacked_nodes+1:3*n_attacked_nodes,:);
-
-    attack_data = [attack_start_times;
-        attack_time_span;
-        attack_final_deviations];
-
-    % getting simulation object
-    sim_obj = [];
-    [sim_obj, effect_index,stealth_index]  = get_simulation_object_sample_system(sim_obj,attack_data);
-
-    save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
-
-else
-    local_var = load('sim_sample_system_data.mat');
-%     sim_obj     = local_var.sim_obj;
-    Z_attack_data = local_var.Z_attack_data;
-    effect_index = local_var.effect_index;
-    stealth_index = local_var.stealth_index;
-end
-
- 
-
-%% Discriminator networks
-stealth_net = create_discriminator_net(3*n_attacked_nodes,1);  % Stealthiness network
-effect_net  = create_discriminator_net(3*n_attacked_nodes,1);  % Effectiveness network
-
-
-% training 
-maxEpochs = 50;
-
-options = trainingOptions('adam', ...
-    'ExecutionEnvironment','cpu', ...
-    'MaxEpochs',maxEpochs, ...
-    'MiniBatchSize',mini_batch_size, ...
-    'GradientThreshold',1, ...
-    'Verbose',false, ...
-    'Plots','none');
-
-effect_net_layers = [effect_net.Layers;regressionLayer];
-[effect_series_net, effect_training_info]   = trainNetwork(Z_attack_data.',effect_index,effect_net_layers,options);
-effect_lgraph = layerGraph(effect_series_net);
-effect_lgraph = removeLayers(effect_lgraph,'regressionoutput');
-effect_net = dlnetwork(effect_lgraph);
-
-stealth_net_layers = [stealth_net.Layers;regressionLayer];
-[stealth_series_net, stealth_training_info] = trainNetwork(Z_attack_data.',stealth_index,stealth_net_layers,options);
-stealth_lgraph = layerGraph(stealth_series_net);
-stealth_lgraph = removeLayers(stealth_lgraph,'regressionoutput');
-stealth_net = dlnetwork(stealth_lgraph);
-
-%% Plot routine
- loss_fig = figure;
-C = colororder;
-lineLossTrain = animatedline(Color=C(2,:));
-ylim([0 inf])
-xlabel("Iteration")
-ylabel("Loss")
-grid on
-
-
-%% Creating Generator network
+%% Initialize Generator network
 inp_size = 10;
 out_size = 3*n_attacked_nodes;  % dimension of smallest Eucliden space containing set S.
 
@@ -120,92 +27,170 @@ layers = [
 
 gen_net = dlnetwork(layers);
 
+% Generator parameters
+alpha = 0.7;  % probability of success
+beta  = 1 - alpha;
 
-%% Random network input sample
-Z_data    = 20*(0.5 - rand(inp_size,n_samples,"single"));   % uniformly random noise as input
-Z_dlarray = dlarray(Z_data,"CB");                     % covert to dlarray
-% Z         = gpuArray(Z_dlarray);                      % use gpu
+thresh_1 = 0.3;
+thresh_2 = 0.5;
 
+mini_batch_size = 5000;
+n_batch         = 100;
+n_samples       = n_batch*mini_batch_size;
+n_epoch         = 100;
 
-% Pretrained network performace
-out = double(predict(gen_net,Z_dlarray));
-f1_out = f1(stealth_net,out,thresh_1);
-f2_out = f2(effect_net, out,thresh_2);
-pre_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
-disp("pre-trained score = " + num2str(pre_score) + " ::: Target = " + num2str(alpha))
+generate_random_data_flag = true;
+generate_generator_data_flag = true;
+n_random_sim_samples = 100;  % Number of random attack dataset per epoch used to train descriminators
+n_generator_sim_sample = round(n_random_sim_samples/2);
 
-perf_fig = figure;
-y_stealth = predict(stealth_net,out);
-y_effect  = predict(effect_net,out);
-subplot(121)
-plot(y_stealth,'.'), hold on, plot(ones(n_samples,1)*thresh_1,'k')
-subplot(122)
-plot(y_effect,'.'), hold on, plot(ones(n_samples,1)*thresh_2,'k')
-sgtitle("Training Performance")
+%% Initialize Discriminators
+stealth_net = create_discriminator_net(3*n_attacked_nodes,1);  % Stealthiness network
+effect_net  = create_discriminator_net(3*n_attacked_nodes,1);  % Effectiveness network
 
+% training parameters 
+maxEpochs = 50;
 
-
-%% Training the network with adam
-
-% parameters for Adam optimizer
-learnRate = 0.0002;
-gradientDecayFactor = 0.5;
-squaredGradientDecayFactor = 0.999;
-
-% initialize Adam optimizer
-trailingAvg = [];
-trailingAvgSq = [];
+options = trainingOptions('adam', ...
+    'ExecutionEnvironment','cpu', ...
+    'MaxEpochs',maxEpochs, ...
+    'MiniBatchSize',mini_batch_size, ...
+    'GradientThreshold',1, ...
+    'Verbose',false, ...
+    'Plots','none');
 
 
-% training
-iteration = 0;
-start = tic;
+for i_epoch = 1:n_epoch
 
-% Loop over one epoch of mini-batches
-for ind = 1:mini_batch_size:n_samples
-    iteration = iteration +1;
+    %% Prepare random attack dataset 
+    if generate_random_data_flag == true
+        %%% Attack data
+        Z_attack_data    = rand(3*n_attacked_nodes,n_random_sim_samples);
+        attack_data = ramp_attack_policy(Z_attack_data,t_sim_stop);
+    
+        % getting simulation object
+        sim_obj = [];
+        [sim_obj, effect_index,stealth_index]  = get_simulation_object_sample_system(sim_obj,attack_data);
+    
+        save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
+    
+    else
+        local_var = load('sim_sample_system_data.mat');
+    %     sim_obj     = local_var.sim_obj;
+        Z_attack_data = local_var.Z_attack_data;
+        effect_index = local_var.effect_index;
+        stealth_index = local_var.stealth_index;
+    end
+ 
 
-    % Getting mini-batch input data
-    idx = ind:min(ind+mini_batch_size-1,n_samples);
-    Z_iter = Z_dlarray(:,idx);
+    %% Train Discriminator network
+    effect_net_layers = [effect_net.Layers;regressionLayer];
+    [effect_series_net, effect_training_info]   = trainNetwork(Z_attack_data.',effect_index,effect_net_layers,options);
+    effect_lgraph = layerGraph(effect_series_net);
+    effect_lgraph = removeLayers(effect_lgraph,'regressionoutput');
+    effect_net = dlnetwork(effect_lgraph);
+    
+    stealth_net_layers = [stealth_net.Layers;regressionLayer];
+    [stealth_series_net, stealth_training_info] = trainNetwork(Z_attack_data.',stealth_index,stealth_net_layers,options);
+    stealth_lgraph = layerGraph(stealth_series_net);
+    stealth_lgraph = removeLayers(stealth_lgraph,'regressionoutput');
+    stealth_net = dlnetwork(stealth_lgraph);
+    
+%     %% Plot routine
+%     loss_fig = figure;
+%     C = colororder;
+%     lineLossTrain = animatedline(Color=C(2,:));
+%     ylim([0 inf])
+%     xlabel("Iteration")
+%     ylabel("Loss")
+%     grid on
 
-    % Evaluate the model gradients, state, and loss using dlfeval and the modelLoss function and update the network state.
-    [gradients,net_state,loss] = dlfeval(@model_loss,gen_net,Z_iter, beta*mini_batch_size,stealth_net,effect_net,thresh_1, thresh_2); % forward propogation, simulation, loss calculation, gradient calculation
 
-    gen_net.State = net_state;                    % update network state
+    %% Random network input sample
+    Z_data    = 20*(0.5 - rand(inp_size,n_samples,"single"));   % uniformly random noise as input
+    Z_dlarray = dlarray(Z_data,"CB");                     % covert to dlarray
+    % Z         = gpuArray(Z_dlarray);                      % use gpu
+    
+    
+%     % Pretrained network performace
+%     out = double(predict(gen_net,Z_dlarray));
+%     f1_out = f1(stealth_net,out,thresh_1);
+%     f2_out = f2(effect_net, out,thresh_2);
+%     pre_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
+%     disp("pre-trained score = " + num2str(pre_score) + " ::: Target = " + num2str(alpha))
+%     
+%     perf_fig = figure;
+%     y_stealth = predict(stealth_net,out);
+%     y_effect  = predict(effect_net,out);
+%     subplot(121)
+%     plot(y_stealth,'.'), hold on, plot(ones(n_samples,1)*thresh_1,'k')
+%     subplot(122)
+%     plot(y_effect,'.'), hold on, plot(ones(n_samples,1)*thresh_2,'k')
+%     sgtitle("Training Performance")
 
-    % Update the network parameters using the Adam optimizer.
-    [gen_net,trailingAvg,trailingAvgSq] = adamupdate(gen_net, gradients, ...
-        trailingAvg, trailingAvgSq, iteration, ...
-        learnRate, gradientDecayFactor, squaredGradientDecayFactor);
 
-    % Display the training progress.
-    figure(loss_fig)
-    D = duration(0,0,toc(start),Format="hh:mm:ss");
-    addpoints(lineLossTrain,iteration,double(loss))
-    title("Generator Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
-    drawnow
+
+    %% Training Generator with adam
+    
+    % parameters for Adam optimizer
+    learnRate = 0.0002;
+    gradientDecayFactor = 0.5;
+    squaredGradientDecayFactor = 0.999;
+    
+    % initialize Adam optimizer
+    trailingAvg = [];
+    trailingAvgSq = [];
+    
+    % training
+    iteration = 0;
+    start = tic;
+    
+    % Loop over one epoch of mini-batches
+    for ind = 1:mini_batch_size:n_samples
+        iteration = iteration +1;
+    
+        % Getting mini-batch input data
+        idx = ind:min(ind+mini_batch_size-1,n_samples);
+        Z_iter = Z_dlarray(:,idx);
+    
+        % Evaluate the model gradients, state, and loss using dlfeval and the modelLoss function and update the network state.
+        [gradients,net_state,loss] = dlfeval(@model_loss,gen_net,Z_iter, beta*mini_batch_size,stealth_net,effect_net,thresh_1, thresh_2); % forward propogation, simulation, loss calculation, gradient calculation
+    
+        gen_net.State = net_state;                    % update network state
+    
+        % Update the network parameters using the Adam optimizer.
+        [gen_net,trailingAvg,trailingAvgSq] = adamupdate(gen_net, gradients, ...
+            trailingAvg, trailingAvgSq, iteration, ...
+            learnRate, gradientDecayFactor, squaredGradientDecayFactor);
+    
+%         % Display the training progress.
+%         figure(loss_fig)
+%         D = duration(0,0,toc(start),Format="hh:mm:ss");
+%         addpoints(lineLossTrain,iteration,double(loss))
+%         title("Generator Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
+%         drawnow
+    
+    end
+    toc(start);
+
+
+%     % Post-trained network performace
+%     out = double(forward(gen_net,Z_dlarray));
+%     
+%     f1_out = f1(stealth_net,out,thresh_1);
+%     f2_out = f2(effect_net,out,thresh_2);
+%     post_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
+%     disp("post-trained score = " + num2str(post_score) + " ::: Target = " + num2str(alpha))
+%     
+%     figure(perf_fig),
+%     y_stealth = forward(stealth_net,out);
+%     y_effect  = forward(effect_net,out);
+%     subplot(121)
+%     hold on, plot(y_stealth,'.')
+%     subplot(122)
+%     hold on, plot(y_effect,'.')
 
 end
-toc(start);
-
-
-% Post-trained network performace
-out = double(forward(gen_net,Z_dlarray));
-
-f1_out = f1(stealth_net,out,thresh_1);
-f2_out = f2(effect_net,out,thresh_2);
-post_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
-disp("post-trained score = " + num2str(post_score) + " ::: Target = " + num2str(alpha))
-
-figure(perf_fig),
-y_stealth = forward(stealth_net,out);
-y_effect  = forward(effect_net,out);
-subplot(121)
-hold on, plot(y_stealth,'.')
-subplot(122)
-hold on, plot(y_effect,'.')
-
 
 
 %% Testing performance
