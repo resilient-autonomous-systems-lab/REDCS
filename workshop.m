@@ -17,13 +17,13 @@ layers = [
     reluLayer("Name","relu_1")
 
     fullyConnectedLayer(100*inp_size,"Name","fc_2")
-    sigmoidLayer("Name","sig")
+    tanhLayer("Name","tanh")
 
     fullyConnectedLayer(50*inp_size,"Name","fc_3")
     reluLayer("Name","relu_2")
 
     fullyConnectedLayer(out_size,"Name","fc_4")
-    tanhLayer("Name","tanh")];
+    sigmoidLayer("Name","sig")];
 
 gen_net = dlnetwork(layers);
 
@@ -31,17 +31,17 @@ gen_net = dlnetwork(layers);
 alpha = 0.7;  % probability of success
 beta  = 1 - alpha;
 
-thresh_1 = 0.3;
-thresh_2 = 0.5;
+thresh_1 = 0.6;
+thresh_2 = 0.4;
 
 mini_batch_size = 5000;
 n_batch         = 100;
 n_samples       = n_batch*mini_batch_size;
-n_epoch         = 1;
+n_epoch         = 100;
 
 generate_random_data_flag = true;
 generate_generator_data_flag = true;
-n_random_sim_samples = 100;  % Number of random attack dataset per epoch used to train descriminators
+n_random_sim_samples = 1000;  % Number of random attack dataset per epoch used to train descriminators
 n_generator_sim_sample = round(n_random_sim_samples/2);
 
 %% Initialize Discriminators
@@ -76,9 +76,9 @@ for i_epoch = 1:n_epoch
     
     else
         local_var_rand = load('random_attack_data.mat');
-    %     sim_obj     = local_var.sim_obj;
+        sim_obj_rand       = local_var_rand.sim_obj_rand;
         Z_attack_data_rand = local_var_rand.Z_attack_data_rand;
-        effect_index_rand = local_var_rand.effect_index_rand;
+        effect_index_rand  = local_var_rand.effect_index_rand;
         stealth_index_rand = local_var_rand.stealth_index_rand;
     end
 
@@ -88,7 +88,7 @@ for i_epoch = 1:n_epoch
         Z_train        = 100*(0.5 - rand(inp_size,n_generator_sim_sample,"single"));   % uniformly random noise as input
         Z_train_dlarray = dlarray(Z_train,"CB");                     % covert to dlarray
         
-        Z_attack_data_gen = double(forward(gen_net,Z_train_dlarray));
+        Z_attack_data_gen = double(extractdata(forward(gen_net,Z_train_dlarray)));
         attack_data_gen = ramp_attack_policy(Z_attack_data_gen,t_sim_stop);
 
         % getting simulation object
@@ -98,20 +98,19 @@ for i_epoch = 1:n_epoch
         save('generator_attack_data','sim_obj_gen','effect_index_gen','stealth_index_gen','Z_attack_data_gen','-v7.3');
 
     else
-        local_var_gen = load('random_attack_data.mat');
-
+        local_var_gen = load('generator_attack_data.mat');
+        sim_obj_gen       = local_var_gen.sim_obj_gen;
         Z_attack_data_gen = local_var_gen.Z_attack_data_gen;
-        effect_index_gen = local_var_gen.effect_index_gen;
+        effect_index_gen  = local_var_gen.effect_index_gen;
         stealth_index_gen = local_var_gen.stealth_index_gen;
     end
 
     %% compose training dataset for discriminator
-    sim_obj = [sim_obj_rand, sim_obj_gen];
     Z_attack_data = [Z_attack_data_rand,Z_attack_data_gen];
-    effect_index = [effect_index_rand,effect_index_gen];
-    stealth_index = [stealth_index_rand,stealth_index_gen];
+    effect_index = [effect_index_rand;effect_index_gen];
+    stealth_index = [stealth_index_rand;stealth_index_gen];
     
-    save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
+    save('sim_sample_system_data','sim_obj_rand','sim_obj_gen','effect_index','stealth_index','Z_attack_data','-v7.3');
 
 
     %% Train Discriminator network
@@ -127,14 +126,14 @@ for i_epoch = 1:n_epoch
     stealth_lgraph = removeLayers(stealth_lgraph,'regressionoutput');
     stealth_net = dlnetwork(stealth_lgraph);
     
-%     %% Plot routine
-%     loss_fig = figure;
-%     C = colororder;
-%     lineLossTrain = animatedline(Color=C(2,:));
-%     ylim([0 inf])
-%     xlabel("Iteration")
-%     ylabel("Loss")
-%     grid on
+    %% Plot routine
+    loss_fig = figure;
+    C = colororder;
+    lineLossTrain = animatedline(Color=C(2,:));
+    ylim([0 inf])
+    xlabel("Iteration")
+    ylabel("Loss")
+    grid on
 
 
     %% Random network input sample
@@ -143,21 +142,21 @@ for i_epoch = 1:n_epoch
     % Z         = gpuArray(Z_dlarray);                      % use gpu
     
     
-%     % Pretrained network performace
-%     out = double(predict(gen_net,Z_dlarray));
-%     f1_out = f1(stealth_net,out,thresh_1);
-%     f2_out = f2(effect_net, out,thresh_2);
-%     pre_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
-%     disp("pre-trained score = " + num2str(pre_score) + " ::: Target = " + num2str(alpha))
-%     
-%     perf_fig = figure;
-%     y_stealth = predict(stealth_net,out);
-%     y_effect  = predict(effect_net,out);
-%     subplot(121)
-%     plot(y_stealth,'.'), hold on, plot(ones(n_samples,1)*thresh_1,'k')
-%     subplot(122)
-%     plot(y_effect,'.'), hold on, plot(ones(n_samples,1)*thresh_2,'k')
-%     sgtitle("Training Performance")
+    % Pretrained network performace
+    out = double(predict(gen_net,Z_dlarray));
+    f1_out = f1(stealth_net,out,thresh_1);
+    f2_out = f2(effect_net, out,thresh_2);
+    pre_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
+    disp("pre-trained score = " + num2str(pre_score) + " ::: Target = " + num2str(alpha))
+    
+    perf_fig = figure;
+    y_stealth = predict(stealth_net,out);
+    y_effect  = predict(effect_net,out);
+    subplot(121)
+    plot(y_stealth,'.'), hold on, plot(ones(n_samples,1)*thresh_1,'k')
+    subplot(122)
+    plot(y_effect,'.'), hold on, plot(ones(n_samples,1)*thresh_2,'k')
+    sgtitle("Training Performance")
 
 
 
@@ -194,32 +193,32 @@ for i_epoch = 1:n_epoch
             trailingAvg, trailingAvgSq, iteration, ...
             learnRate, gradientDecayFactor, squaredGradientDecayFactor);
     
-%         % Display the training progress.
-%         figure(loss_fig)
-%         D = duration(0,0,toc(start),Format="hh:mm:ss");
-%         addpoints(lineLossTrain,iteration,double(loss))
-%         title("Generator Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
-%         drawnow
+        % Display the training progress.
+        figure(loss_fig)
+        D = duration(0,0,toc(start),Format="hh:mm:ss");
+        addpoints(lineLossTrain,iteration,double(loss))
+        title("Generator Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
+        drawnow
     
     end
     toc(start);
 
 
-%     % Post-trained network performace
-%     out = double(forward(gen_net,Z_dlarray));
-%     
-%     f1_out = f1(stealth_net,out,thresh_1);
-%     f2_out = f2(effect_net,out,thresh_2);
-%     post_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
-%     disp("post-trained score = " + num2str(post_score) + " ::: Target = " + num2str(alpha))
-%     
-%     figure(perf_fig),
-%     y_stealth = forward(stealth_net,out);
-%     y_effect  = forward(effect_net,out);
-%     subplot(121)
-%     hold on, plot(y_stealth,'.')
-%     subplot(122)
-%     hold on, plot(y_effect,'.')
+    % Post-trained network performace
+    out = double(forward(gen_net,Z_dlarray));
+    
+    f1_out = f1(stealth_net,out,thresh_1);
+    f2_out = f2(effect_net,out,thresh_2);
+    post_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
+    disp("post-trained score = " + num2str(post_score) + " ::: Target = " + num2str(alpha))
+    
+    figure(perf_fig),
+    y_stealth = forward(stealth_net,out);
+    y_effect  = forward(effect_net,out);
+    subplot(121)
+    hold on, plot(y_stealth,'.')
+    subplot(122)
+    hold on, plot(y_effect,'.')
 
 end
 
