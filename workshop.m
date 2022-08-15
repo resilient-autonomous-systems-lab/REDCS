@@ -37,7 +37,7 @@ thresh_2 = 0.5;
 mini_batch_size = 5000;
 n_batch         = 100;
 n_samples       = n_batch*mini_batch_size;
-n_epoch         = 100;
+n_epoch         = 1;
 
 generate_random_data_flag = true;
 generate_generator_data_flag = true;
@@ -62,26 +62,57 @@ options = trainingOptions('adam', ...
 
 for i_epoch = 1:n_epoch
 
-    %% Prepare random attack dataset 
+    %% Prepare random attack dataset (for discriminator training)
     if generate_random_data_flag == true
         %%% Attack data
-        Z_attack_data    = rand(3*n_attacked_nodes,n_random_sim_samples);
-        attack_data = ramp_attack_policy(Z_attack_data,t_sim_stop);
+        Z_attack_data_rand    = rand(3*n_attacked_nodes,n_random_sim_samples);
+        attack_data_rand = ramp_attack_policy(Z_attack_data_rand,t_sim_stop);
     
         % getting simulation object
-        sim_obj = [];
-        [sim_obj, effect_index,stealth_index]  = get_simulation_object_sample_system(sim_obj,attack_data);
+        sim_obj_rand = [];
+        [sim_obj_rand, effect_index_rand,stealth_index_rand]  = get_simulation_object_sample_system(sim_obj_rand,attack_data_rand);
     
-        save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
+        save('random_attack_data','sim_obj_rand','effect_index_rand','stealth_index_rand','Z_attack_data_rand','-v7.3');
     
     else
-        local_var = load('sim_sample_system_data.mat');
+        local_var_rand = load('random_attack_data.mat');
     %     sim_obj     = local_var.sim_obj;
-        Z_attack_data = local_var.Z_attack_data;
-        effect_index = local_var.effect_index;
-        stealth_index = local_var.stealth_index;
+        Z_attack_data_rand = local_var_rand.Z_attack_data_rand;
+        effect_index_rand = local_var_rand.effect_index_rand;
+        stealth_index_rand = local_var_rand.stealth_index_rand;
     end
- 
+
+    %% Prepare generator attack dataset (for discriminator training)
+    if generate_generator_data_flag == true
+        %%% Attack data
+        Z_train        = 100*(0.5 - rand(inp_size,n_generator_sim_sample,"single"));   % uniformly random noise as input
+        Z_train_dlarray = dlarray(Z_train,"CB");                     % covert to dlarray
+        
+        Z_attack_data_gen = double(forward(gen_net,Z_train_dlarray));
+        attack_data_gen = ramp_attack_policy(Z_attack_data_gen,t_sim_stop);
+
+        % getting simulation object
+        sim_obj_gen = [];
+        [sim_obj_gen, effect_index_gen,stealth_index_gen]  = get_simulation_object_sample_system(sim_obj_gen,attack_data_gen);
+
+        save('generator_attack_data','sim_obj_gen','effect_index_gen','stealth_index_gen','Z_attack_data_gen','-v7.3');
+
+    else
+        local_var_gen = load('random_attack_data.mat');
+
+        Z_attack_data_gen = local_var_gen.Z_attack_data_gen;
+        effect_index_gen = local_var_gen.effect_index_gen;
+        stealth_index_gen = local_var_gen.stealth_index_gen;
+    end
+
+    %% compose training dataset for discriminator
+    sim_obj = [sim_obj_rand, sim_obj_gen];
+    Z_attack_data = [Z_attack_data_rand,Z_attack_data_gen];
+    effect_index = [effect_index_rand,effect_index_gen];
+    stealth_index = [stealth_index_rand,stealth_index_gen];
+    
+    save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
+
 
     %% Train Discriminator network
     effect_net_layers = [effect_net.Layers;regressionLayer];
