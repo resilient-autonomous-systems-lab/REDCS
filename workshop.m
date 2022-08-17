@@ -31,13 +31,13 @@ gen_net = dlnetwork(layers);
 alpha = 0.7;  % probability of success
 beta  = 1 - alpha;
 
-thresh_1 = 0.6;
-thresh_2 = 0.4;
+thresh_1 = 0.6;  % threshold for stealthiness
+thresh_2 = 0.3;  % threshold for effectivness
 
 mini_batch_size = 5000;
 n_batch         = 100;
 n_samples       = n_batch*mini_batch_size;
-n_epoch         = 100;
+n_epoch         = 5;
 
 generate_random_data_flag = true;
 generate_generator_data_flag = true;
@@ -49,7 +49,7 @@ stealth_net = create_discriminator_net(3*n_attacked_nodes,1);  % Stealthiness ne
 effect_net  = create_discriminator_net(3*n_attacked_nodes,1);  % Effectiveness network
 
 % training parameters 
-maxEpochs = 50;
+maxEpochs = 500;
 
 options = trainingOptions('adam', ...
     'ExecutionEnvironment','cpu', ...
@@ -59,7 +59,30 @@ options = trainingOptions('adam', ...
     'Verbose',false, ...
     'Plots','none');
 
+%% Plot routine
+loss_fig_gen = figure;
+C = colororder;
+genLossTrain = animatedline(Color=C(2,:));
+ylim([0 inf])
+xlabel("Iteration")
+ylabel("Loss")
+grid on
 
+loss_fig_dis1 = figure;
+dis1LossTrain = animatedline(Color=C(2,:));
+ylim([0 inf])
+xlabel("Iteration")
+ylabel("Loss")
+grid on
+
+loss_fig_dis2 = figure;
+dis2LossTrain = animatedline(Color=C(2,:));
+ylim([0 inf])
+xlabel("Iteration")
+ylabel("Loss")
+grid on
+
+start = tic;
 for i_epoch = 1:n_epoch
 
     %% Prepare random attack dataset (for discriminator training)
@@ -125,15 +148,18 @@ for i_epoch = 1:n_epoch
     stealth_lgraph = layerGraph(stealth_series_net);
     stealth_lgraph = removeLayers(stealth_lgraph,'regressionoutput');
     stealth_net = dlnetwork(stealth_lgraph);
-    
-    %% Plot routine
-    loss_fig = figure;
-    C = colororder;
-    lineLossTrain = animatedline(Color=C(2,:));
-    ylim([0 inf])
-    xlabel("Iteration")
-    ylabel("Loss")
-    grid on
+
+    % Display the training progress
+    figure(loss_fig_dis1)
+    D = duration(0,0,toc(start),Format="hh:mm:ss");
+    addpoints(dis1LossTrain,(i_epoch-1)*maxEpochs+linspace(1,maxEpochs,maxEpochs),double(effect_training_info.TrainingLoss))
+    title("effect Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
+
+    figure(loss_fig_dis2)
+    D = duration(0,0,toc(start),Format="hh:mm:ss");
+    addpoints(dis2LossTrain,(i_epoch-1)*maxEpochs+linspace(1,maxEpochs,maxEpochs),double(stealth_training_info.TrainingLoss))
+    title("stealth Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
+    drawnow
 
 
     %% Random network input sample
@@ -173,7 +199,6 @@ for i_epoch = 1:n_epoch
     
     % training
     iteration = 0;
-    start = tic;
     
     % Loop over one epoch of mini-batches
     for ind = 1:mini_batch_size:n_samples
@@ -194,12 +219,12 @@ for i_epoch = 1:n_epoch
             learnRate, gradientDecayFactor, squaredGradientDecayFactor);
     
         % Display the training progress.
-        figure(loss_fig)
+        figure(loss_fig_gen)
         D = duration(0,0,toc(start),Format="hh:mm:ss");
-        addpoints(lineLossTrain,iteration,double(loss))
+        addpoints(genLossTrain,iteration+(i_epoch-1)*n_samples,double(loss))
         title("Generator Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
         drawnow
-    
+
     end
     toc(start);
 
@@ -274,13 +299,12 @@ layers = [
     fullyConnectedLayer(5*inp_size,"Name","fc_1")
     reluLayer("Name","relu_1")
 
-    fullyConnectedLayer(5*inp_size,"Name","fc_2")
-    tanhLayer("Name","tanhn_1")
+%     fullyConnectedLayer(5*inp_size,"Name","fc_2")
+%     tanhLayer("Name","tanhn_1")
 
     fullyConnectedLayer(out_size,"Name","fc_3")
     sigmoidLayer("Name","sigmoid")];
 
 
 net = dlnetwork(layers);
-
 
