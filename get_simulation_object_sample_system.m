@@ -79,5 +79,8 @@ end
 
 sim_out = parsim(sim_inp);
 
+%% prune the error simulation outputs
+
+
 %% calculate effectiveness and stealthiness
 [effect_index, stealth_index] = get_error_from_nominal(sim_out,yc_nominal,r_nominal);

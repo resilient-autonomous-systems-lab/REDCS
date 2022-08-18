@@ -37,27 +37,27 @@ thresh_2 = 0.3;  % threshold for effectivness
 mini_batch_size = 5000;
 n_batch         = 100;
 n_samples       = n_batch*mini_batch_size;
-n_epoch         = 5;
+n_epoch         = 10;
 
 generate_random_data_flag = true;
 generate_generator_data_flag = true;
-n_random_sim_samples = 1000;  % Number of random attack dataset per epoch used to train descriminators
+n_random_sim_samples = 100;  % Number of random attack dataset per epoch used to train descriminators
 n_generator_sim_sample = round(n_random_sim_samples/2);
 
 %% Initialize Discriminators
 stealth_net = create_discriminator_net(3*n_attacked_nodes,1);  % Stealthiness network
 effect_net  = create_discriminator_net(3*n_attacked_nodes,1);  % Effectiveness network
 
-% training parameters 
-maxEpochs = 500;
-
-options = trainingOptions('adam', ...
-    'ExecutionEnvironment','cpu', ...
-    'MaxEpochs',maxEpochs, ...
-    'MiniBatchSize',mini_batch_size, ...
-    'GradientThreshold',1, ...
-    'Verbose',false, ...
-    'Plots','none');
+% % training parameters 
+% maxEpochs = 500;
+% 
+% options = trainingOptions('adam', ...
+%     'ExecutionEnvironment','cpu', ...
+%     'MaxEpochs',maxEpochs, ...
+%     'MiniBatchSize',mini_batch_size, ...
+%     'GradientThreshold',1, ...
+%     'Verbose',false, ...
+%     'Plots','none');
 
 %% Plot routine
 loss_fig_gen = figure;
@@ -85,50 +85,14 @@ grid on
 start = tic;
 for i_epoch = 1:n_epoch
 
-    %% Prepare random attack dataset (for discriminator training)
-    if generate_random_data_flag == true
-        %%% Attack data
-        Z_attack_data_rand    = rand(3*n_attacked_nodes,n_random_sim_samples);
-        attack_data_rand = ramp_attack_policy(Z_attack_data_rand,t_sim_stop);
-    
-        % getting simulation object
-        sim_obj_rand = [];
-        [sim_obj_rand, effect_index_rand,stealth_index_rand]  = get_simulation_object_sample_system(sim_obj_rand,attack_data_rand);
-    
-        save('random_attack_data','sim_obj_rand','effect_index_rand','stealth_index_rand','Z_attack_data_rand','-v7.3');
-    
-    else
-        local_var_rand = load('random_attack_data.mat');
-        sim_obj_rand       = local_var_rand.sim_obj_rand;
-        Z_attack_data_rand = local_var_rand.Z_attack_data_rand;
-        effect_index_rand  = local_var_rand.effect_index_rand;
-        stealth_index_rand = local_var_rand.stealth_index_rand;
-    end
+    %% prepare attack dataset for discriminator training
+    %%% random attack dataset 
+    [sim_obj_rand,Z_attack_data_rand,effect_index_rand,stealth_index_rand] = random_attack_dataset_gen(generate_random_data_flag,n_attacked_nodes,n_random_sim_samples,t_sim_stop);
 
-    %% Prepare generator attack dataset (for discriminator training)
-    if generate_generator_data_flag == true
-        %%% Attack data
-        Z_train        = 100*(0.5 - rand(inp_size,n_generator_sim_sample,"single"));   % uniformly random noise as input
-        Z_train_dlarray = dlarray(Z_train,"CB");                     % covert to dlarray
-        
-        Z_attack_data_gen = double(extractdata(forward(gen_net,Z_train_dlarray)));
-        attack_data_gen = ramp_attack_policy(Z_attack_data_gen,t_sim_stop);
+    %%% generator attack dataset
+    [sim_obj_gen,Z_attack_data_gen,effect_index_gen,stealth_index_gen] = generator_attack_dataset_gen(gen_net,generate_generator_data_flag,inp_size,n_generator_sim_sample,t_sim_stop);
 
-        % getting simulation object
-        sim_obj_gen = [];
-        [sim_obj_gen, effect_index_gen,stealth_index_gen]  = get_simulation_object_sample_system(sim_obj_gen,attack_data_gen);
-
-        save('generator_attack_data','sim_obj_gen','effect_index_gen','stealth_index_gen','Z_attack_data_gen','-v7.3');
-
-    else
-        local_var_gen = load('generator_attack_data.mat');
-        sim_obj_gen       = local_var_gen.sim_obj_gen;
-        Z_attack_data_gen = local_var_gen.Z_attack_data_gen;
-        effect_index_gen  = local_var_gen.effect_index_gen;
-        stealth_index_gen = local_var_gen.stealth_index_gen;
-    end
-
-    %% compose training dataset for discriminator
+    %%% compose training dataset for discriminator
     Z_attack_data = [Z_attack_data_rand,Z_attack_data_gen];
     effect_index = [effect_index_rand;effect_index_gen];
     stealth_index = [stealth_index_rand;stealth_index_gen];
@@ -137,17 +101,22 @@ for i_epoch = 1:n_epoch
 
 
     %% Train Discriminator network
-    effect_net_layers = [effect_net.Layers;regressionLayer];
-    [effect_series_net, effect_training_info]   = trainNetwork(Z_attack_data.',effect_index,effect_net_layers,options);
-    effect_lgraph = layerGraph(effect_series_net);
-    effect_lgraph = removeLayers(effect_lgraph,'regressionoutput');
-    effect_net = dlnetwork(effect_lgraph);
-    
-    stealth_net_layers = [stealth_net.Layers;regressionLayer];
-    [stealth_series_net, stealth_training_info] = trainNetwork(Z_attack_data.',stealth_index,stealth_net_layers,options);
-    stealth_lgraph = layerGraph(stealth_series_net);
-    stealth_lgraph = removeLayers(stealth_lgraph,'regressionoutput');
-    stealth_net = dlnetwork(stealth_lgraph);
+%     % initialize new discriminators 
+%     stealth_net = create_discriminator_net(3*n_attacked_nodes,1);  % Stealthiness network
+%     effect_net  = create_discriminator_net(3*n_attacked_nodes,1);  % Effectiveness network
+    [effect_net,stealth_net,effect_training_info,stealth_training_info] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index);
+
+%     effect_net_layers = [effect_net.Layers;regressionLayer];
+%     [effect_series_net, effect_training_info]   = trainNetwork(Z_attack_data.',effect_index,effect_net_layers,options);
+%     effect_lgraph = layerGraph(effect_series_net);
+%     effect_lgraph = removeLayers(effect_lgraph,'regressionoutput');
+%     effect_net = dlnetwork(effect_lgraph);
+%     
+%     stealth_net_layers = [stealth_net.Layers;regressionLayer];
+%     [stealth_series_net, stealth_training_info] = trainNetwork(Z_attack_data.',stealth_index,stealth_net_layers,options);
+%     stealth_lgraph = layerGraph(stealth_series_net);
+%     stealth_lgraph = removeLayers(stealth_lgraph,'regressionoutput');
+%     stealth_net = dlnetwork(stealth_lgraph);
 
     % Display the training progress
     figure(loss_fig_dis1)
@@ -160,6 +129,8 @@ for i_epoch = 1:n_epoch
     addpoints(dis2LossTrain,(i_epoch-1)*maxEpochs+linspace(1,maxEpochs,maxEpochs),double(stealth_training_info.TrainingLoss))
     title("stealth Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
     drawnow
+
+    keyboard
 
 
     %% Random network input sample

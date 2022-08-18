@@ -24,7 +24,8 @@ attack_start_times = attack_start_time_interval(1) + ...
     delta_attack_start_time_interval*Z_attack_data(1:n_attacked_nodes,:);
 
 % attack time spans
-attack_time_span   = attack_time_span_max*Z_attack_data(n_attacked_nodes+1:2*n_attacked_nodes,:);
+attack_time_span_min = 2e-5;
+attack_time_span   = attack_time_span_min + attack_time_span_max*Z_attack_data(n_attacked_nodes+1:2*n_attacked_nodes,:);
 
 % attack final deviations
 attack_final_deviations = attack_max*Z_attack_data(2*n_attacked_nodes+1:3*n_attacked_nodes,:);
