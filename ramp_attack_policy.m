@@ -10,6 +10,9 @@ function attack_data = ramp_attack_policy(Z_attack_data,t_sim_stop)
 % output:
 %        attack_start_times
 %
+% Author: Olugbenga Moses Anubi, Florida state university
+%         Yu Zheng, Florida state university
+% 08/17/2022
 
 %% attack policy parameters
 attack_start_time_interval       = round([0.1 0.2]*t_sim_stop);

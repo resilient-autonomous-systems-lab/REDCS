@@ -117,7 +117,9 @@ toc;
 
 
 % Post-trained network performace
-out = double(forward(gen_net,Z_dlarray));
+Z_data_test    = 20*(0.5 - rand(inp_size,n_samples,"single"));   % uniformly random noise as input
+Z_dlarray_test = dlarray(Z_data_test,"CB");                     % covert to dlarray
+out = double(forward(gen_net,Z_dlarray_test));
 
 f1_out = f1(out,thresh_1);
 f2_out = f2(out,thresh_2);
