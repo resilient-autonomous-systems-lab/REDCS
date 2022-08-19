@@ -1,6 +1,22 @@
-function gen_net = traning_generator(gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param)
+function gen_net = training_generator(i_epoch, gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param)
+%% function gen_net = traning_generator(i_epoch, gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param)
+% train generator network, plot pre-training and post-training performance
+% Inputs: 
+%        i_epoch          : [scalar] current epoch, used for plotting loss curve
+%        gen_net          : dl object for generator network
+%        stealth_net      : dl object for stealthiness network
+%        effect_net       : dl object for effectiveness network
+%        alpha            : [scalar] probability of success
+%        thresholds       : [1-by-2] [thresh_1 (threshold for steathiness), thresh_2 (threshold for effectiveness)]
+%        loss_curve_param : [1-by-3] cell array {loss_fig_gen, genLossTrain, start}
+% Outputs: 
+%        gen_net          : trained generator network
+%
+% Author: Olugbenga Moses Anubi, Florida state university
+%         Yu Zheng, Florida state university
+% 08/19/2022
 
-%% Generator parameters
+%% Generator parameter
 beta = 1-alpha;
 thresh_1 = thresholds(1);
 thresh_2 = thresholds(2);
@@ -10,9 +26,9 @@ mini_batch_size = 5000;
 n_batch         = 100;
 n_samples       = n_batch*mini_batch_size;
 
-loss_fig_gen = loss_curve_param.loss_fig_gen;
-genLossTrain = loss_curve_param.genLossTrain;
-start = loss_curve_param.start;
+loss_fig_gen = loss_curve_param{1,1};
+genLossTrain = loss_curve_param{1,2};
+start = loss_curve_param{1,3};
 
 %% parameters for Adam optimizer
 learnRate = 0.0002;
@@ -44,8 +60,10 @@ y_stealth = predict(stealth_net,out);
 y_effect  = predict(effect_net,out);
 subplot(121)
 plot(y_stealth,'b.'), hold on, plot(ones(n_samples,1)*thresh_1,'k')
+title('stealthiness')
 subplot(122)
 plot(y_effect,'b.'), hold on, plot(ones(n_samples,1)*thresh_2,'k')
+title('effectiveness')
 sgtitle("Training Performance")
 
 %% Loop over one epoch of mini-batches

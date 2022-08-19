@@ -1,5 +1,6 @@
 function [sim_obj,Z_attack_data,effect_index,stealth_index] = random_attack_dataset_gen(generate_data_flag,n_attacked_nodes,n_sim_samples,t_sim_stop)
 %% function [sim_obj,Z_attack_data,effect_index,stealth_index] = random_attack_dataset_gen(generate_data_flag,n_attacked_nodes,n_sim_samples,t_sim_stop)
+% generate random attack dataset for training discriminators
 %
 %
 
@@ -16,10 +17,10 @@ if generate_data_flag == true
 
 else
     local_var_rand = load('random_attack_data.mat');
-    sim_obj       = local_var_rand.sim_obj_rand;
-    Z_attack_data = local_var_rand.Z_attack_data_rand;
-    effect_index  = local_var_rand.effect_index_rand;
-    stealth_index = local_var_rand.stealth_index_rand;
+    sim_obj       = local_var_rand.sim_obj;
+    Z_attack_data = local_var_rand.Z_attack_data;
+    effect_index  = local_var_rand.effect_index;
+    stealth_index = local_var_rand.stealth_index;
 end
 
 end

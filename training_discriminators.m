@@ -13,8 +13,12 @@ function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_tr
 %        - stealth_net_trained: updated dl object
 %        - effect_training_info: reference: https://www.mathworks.com/help/deeplearning/ref/trainnetwork.html#bu6sn4c-traininfo
 %        - stealth_training_info: same as above
+% Author: Olugbenga Moses Anubi, Florida state university
+%         Yu Zheng, Florida state university
+% 08/18/2022
+%
 
-% training parameters 
+%% training parameters 
 mini_batch_size = 5000;
 
 options = trainingOptions('adam', ...

@@ -7,11 +7,11 @@ close all
 Run_sim;
 
 %% global training parameters
-n_epoch         = 10;
+n_epoch         = 5;
 
 generate_random_data_flag = true;
 generate_generator_data_flag = true;
-n_random_sim_samples = 20;  % Number of random attack dataset per epoch used to train descriminators
+n_random_sim_samples = 1000;  % Number of random attack dataset per epoch used to train descriminators
 n_generator_sim_sample = round(n_random_sim_samples/2);
 
 %% Initialize Generator network
@@ -105,12 +105,14 @@ for i_epoch = 1:n_epoch
     drawnow
 
     %% Training Generator with adam
-    gen_net = traning_generator(gen_net,stealth_net,effect_net,inp_size,alpha,thresholds,loss_curve_param);
+    gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param);
 
 
 end
 
 
 %% Testing performance
-test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,alpha);
+test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds);
 disp("Testing score = " + num2str(test_score) + " ::: Target = " + num2str(alpha))
+
+keyboard
