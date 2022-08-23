@@ -1,4 +1,4 @@
-function test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds)
+function [test_score_dis,test_score_sim,y_stealth,y_effect,stealth_index, effect_index] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test,plot_flag)
 %% function test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds)
 % two tests:
 %           1) run generator, obtain stealth and effect indexes from discriminators
@@ -8,8 +8,15 @@ function test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thre
 %        stealth_net      : dl object for stealthiness network
 %        effect_net       : dl object for effectiveness network
 %        thresholds       : [1-by-2] [thresh_1 (threshold for steathiness), thresh_2 (threshold for effectiveness)]
+%        n_test           : [scalar] number of test samples
+%        plot_flag        : [false/true] plot flag for test performance
 % Outputs:
-%        test_score       : [scalar] the ratio of feasible attacks among all samples
+%        test_score_dis       : [scalar] the ratio of feasible attacks among all samples (with discrimiantors)
+%        test_score_sim       : [scalar] the ratio of feasible attacks among all samples (with model simualtion)
+%        y_stealth            : [n_test-by-1] stealth index of test samples (with discrimiantors)
+%        y_effect             : [n_test-by-1] effect index of test samples (with discrimiantors)
+%        stealth_index        : [n_test-by-1] stealth index of test samples (with model simulation)
+%        effect_index         : [n_test-by-1] effect index of test samples (with model simulation) 
 %
 % Author: Olugbenga Moses Anubi, Florida state university
 %         Yu Zheng, Florida state university
@@ -19,7 +26,6 @@ function test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thre
 thresh_1 = thresholds(1);
 thresh_2 = thresholds(2);
 
-n_test = 10000;
 inp_size = gen_net.Layers(1, 1).InputSize;
 
 
@@ -28,35 +34,47 @@ Z_tet_dlarray = dlarray(Z_test,"CB");                         % covert to dlarra
 
 test_out = double(forward(gen_net,Z_tet_dlarray));
 
-f1_out = forward(stealth_net,test_out) - thresh_1;
-f2_out = forward(effect_net,test_out) - thresh_2;
-test_score = sum((f1_out<=0) & (f2_out<=0))/n_test;
+y_stealth = extractdata(forward(stealth_net,test_out));
+y_effect  = extractdata(forward(effect_net,test_out));
+
+f1_out = y_stealth - thresh_1;
+f2_out = thresh_2 - y_effect;
+
+test_score_dis = sum((f1_out<=0) & (f2_out<=0))/n_test;
 % disp("Testing score = " + num2str(test_score) + " ::: Target = " + num2str(alpha))
 
-figure,
-y_stealth = forward(stealth_net,test_out);
-y_effect  = forward(effect_net,test_out);
-subplot(121)
-hold on, plot(y_stealth,'.')
-title("Stealthiness ::: Threshold = " + num2str(thresh_1))
-subplot(122)
-hold on, plot(y_effect,'.')
-title("Effectiveness ::: Threshold = " + num2str(thresh_2))
-
-sgtitle("Testing Performance with discriminators")
+if plot_flag
+    figure,
+    subplot(121)
+    hold on, plot(y_stealth,'.')
+    title("Stealthiness ::: Threshold = " + num2str(thresh_1))
+    subplot(122)
+    hold on, plot(y_effect,'.')
+    title("Effectiveness ::: Threshold = " + num2str(thresh_2))
+    
+    sgtitle("Testing Performance with discriminators")
+end
 
 %% Testing performance with repect to the model simulation
 Z_attack_data = double(extractdata(test_out));
 attack_data = ramp_attack_policy(Z_attack_data,t_sim_stop);
+
 sim_obj = [];
 [sim_obj, effect_index,stealth_index]  = get_simulation_object_sample_system(sim_obj,attack_data);
 
-figure,
-subplot(121)
-hold on, plot(stealth_index,'.')
-title("Stealthiness ::: Threshold = " + num2str(thresh_1))
-subplot(122)
-hold on, plot(effect_index,'.')
-title("Effectiveness ::: Threshold = " + num2str(thresh_2))
+f1_out = stealth_index - thresh_1;
+f2_out = thresh_2 - effect_index;
 
-sgtitle("Testing Performance with model simulation")
+test_score_sim = sum((f1_out<=0) & (f2_out<=0))/n_test;
+
+if plot_flag
+    figure,
+    subplot(121)
+    hold on, plot(stealth_index,'.')
+    title("Stealthiness ::: Threshold = " + num2str(thresh_1))
+    subplot(122)
+    hold on, plot(effect_index,'.')
+    title("Effectiveness ::: Threshold = " + num2str(thresh_2))
+    
+    sgtitle("Testing Performance with model simulation")
+end

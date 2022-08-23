@@ -26,14 +26,14 @@ thresholds = [thresh_1,thresh_2];
 inp_size = 10;
 out_size = 3*n_attacked_nodes;  % dimension of smallest Eucliden space containing set S.
 
-activation_fcns_gen = ["relu","tanh","relu","sigmoid"];
-n_neurons_gen = [50*inp_size,100*inp_size,50*inp_size,out_size];
+activation_fcns_gen = ["relu","tanh","relu","relu","sigmoid"];
+n_neurons_gen = [50*inp_size,100*inp_size,100*inp_size,50*inp_size,out_size];
 gen_net = create_dl_network(inp_size,activation_fcns_gen,n_neurons_gen);
 
 %% Initialize Discriminators
 inp_size_dis = 3*n_attacked_nodes;
-activation_fcns_effect = ["relu","sigmoid"];
-n_neurons_effect = [5*inp_size_dis,1];
+activation_fcns_effect = ["relu","tanh","sigmoid"];
+n_neurons_effect = [5*inp_size_dis,5*inp_size_dis,1];
 effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
 
 activation_fcns_stealth = ["relu","tanh","sigmoid"];
@@ -71,6 +71,12 @@ grid on
 start = tic;
 loss_curve_param = {loss_fig_gen,genLossTrain,start};
 
+n_test_sample = 20;
+effect_dis = zeros(n_test_sample,n_epoch);
+stealth_dis = zeros(n_test_sample,n_epoch);
+effect_sim = zeros(n_test_sample,n_epoch);
+stealth_sim = zeros(n_test_sample,n_epoch);
+
 %% Training
 for i_epoch = 1:n_epoch
 
@@ -107,12 +113,37 @@ for i_epoch = 1:n_epoch
     %% Training Generator with adam
     gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param);
 
+    %% test training performance
+    [~,~,stealth_dis(:,i_epoch),effect_dis(:,i_epoch),stealth_sim(:,i_epoch),effect_sim(:,i_epoch)] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test_sample,false);
 
 end
 
+%% plot training performance
+figure,
+subplot(121)
+hold on, plot(stealth_dis.'.','.')
+title("Stealthiness ::: Threshold = " + num2str(thresh_1))
+xlabel('Epoch')
+subplot(122)
+hold on, plot(effect_dis.','.')
+title("Effectiveness ::: Threshold = " + num2str(thresh_2))
+xlabel('Epoch')
+sgtitle("Training Performance with discriminators")
+
+figure,
+subplot(121)
+hold on, plot(stealth_sim.','.')
+title("Stealthiness ::: Threshold = " + num2str(thresh_1))
+xlabel('Epoch')
+subplot(122)
+hold on, plot(effect_sim.','.')
+title("Effectiveness ::: Threshold = " + num2str(thresh_2))
+xlabel('Epoch')
+sgtitle("Training Performance with model simulation")
 
 %% Testing performance
-test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds);
-disp("Testing score = " + num2str(test_score) + " ::: Target = " + num2str(alpha))
+[test_score_dis,test_score_sim,~,~,~,~] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,200,true);
+disp("Testing score with discriminators = " + num2str(test_score_dis) + " ::: Target = " + num2str(alpha))
+disp("Testing score with model simualtion = " + num2str(test_score_sim) + " ::: Target = " + num2str(alpha))
 
 keyboard
