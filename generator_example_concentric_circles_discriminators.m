@@ -11,7 +11,7 @@ thresh_1 = 0.2;
 thresh_2 = 0.1;
 
 mini_batch_size = 500;
-n_batch         = 100;
+n_batch         = 1000;
 n_samples       = n_batch*mini_batch_size;
 
 
@@ -83,6 +83,7 @@ trailingAvgSq = [];
 
 
 % training
+tic;
 iteration = 0;
 start = tic;
 
@@ -116,7 +117,9 @@ toc;
 
 
 % Post-trained network performace
-out = double(forward(gen_net,Z_dlarray));
+Z_data_test    = 20*(0.5 - rand(inp_size,n_samples,"single"));   % uniformly random noise as input
+Z_dlarray_test = dlarray(Z_data_test,"CB");                     % covert to dlarray
+out = double(forward(gen_net,Z_dlarray_test));
 
 f1_out = f1(out,thresh_1);
 f2_out = f2(out,thresh_2);
@@ -138,8 +141,8 @@ loss    = relu((sum(exp(f1(g_theta,thresh_1))) - beta_n)) + ...
 gradients = dlgradient(loss,net.Learnables);
 
 function out = f1(x,thresh_1)
-out =  sum(x.*x,1) - thresh_1;  % inidicator function
+out =  sum(x.*x,1) - thresh_1 ;  % inidicator function
 
 function out = f2(x,thresh_2)
-out =  thresh_2 - sum(x.*x,1);  % inidicator function
+out =  thresh_2 - sum(x.*x,1) ;  % inidicator function
 
