@@ -48,24 +48,6 @@ Z_dlarray = dlarray(Z_data,"CB");                     % covert to dlarray
 % Z         = gpuArray(Z_dlarray);                      % use gpu
 
 
-%% Pretrained network performace
-out = double(predict(gen_net,Z_dlarray));
-f1_out = f1(stealth_net,out,thresh_1);
-f2_out = f2(effect_net, out,thresh_2);
-pre_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
-disp("pre-trained score = " + num2str(pre_score) + " ::: Target = " + num2str(alpha))
-
-perf_fig = figure;
-y_stealth = predict(stealth_net,out);
-y_effect  = predict(effect_net,out);
-subplot(121)
-plot(y_stealth,'b.'), hold on, plot(ones(n_samples,1)*thresh_1,'k')
-title('stealthiness')
-subplot(122)
-plot(y_effect,'b.'), hold on, plot(ones(n_samples,1)*thresh_2,'k')
-title('effectiveness')
-sgtitle("Training Performance")
-
 %% Loop over one epoch of mini-batches
 for ind = 1:mini_batch_size:n_samples
     iteration = iteration +1;
@@ -92,22 +74,6 @@ for ind = 1:mini_batch_size:n_samples
     drawnow
 
 end
-
-% Post-trained network performace
-out = double(forward(gen_net,Z_dlarray));
-
-f1_out = f1(stealth_net,out,thresh_1);
-f2_out = f2(effect_net,out,thresh_2);
-post_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
-disp("post-trained score = " + num2str(post_score) + " ::: Target = " + num2str(alpha))
-
-figure(perf_fig),
-y_stealth = forward(stealth_net,out);
-y_effect  = forward(effect_net,out);
-subplot(121)
-hold on, plot(y_stealth,'.')
-subplot(122)
-hold on, plot(y_effect,'.')
 
 
 function [gradients,states,loss] = model_loss(net,Z,beta_n,stealth_net,effect_net,thresh_1,thresh_2)

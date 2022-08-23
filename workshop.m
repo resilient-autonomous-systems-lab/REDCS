@@ -7,7 +7,7 @@ close all
 Run_sim;
 
 %% global training parameters
-n_epoch         = 5;
+n_epoch         = 20;
 
 generate_random_data_flag = true;
 generate_generator_data_flag = true;
@@ -114,18 +114,21 @@ for i_epoch = 1:n_epoch
     gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param);
 
     %% test training performance
-    [~,~,stealth_dis(:,i_epoch),effect_dis(:,i_epoch),stealth_sim(:,i_epoch),effect_sim(:,i_epoch)] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test_sample,false);
+    [~,~,stealth_dis(:,i_epoch),effect_dis(:,i_epoch),stealth_sim(:,i_epoch),effect_sim(:,i_epoch)] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test_sample,t_sim_stop,false);
 
 end
 
 %% plot training performance
+
 figure,
 subplot(121)
-hold on, plot(stealth_dis.'.','.')
+hold on, plot(stealth_dis.','.')
+hold on, plot(thresh_1*ones(1,n_epoch))
 title("Stealthiness ::: Threshold = " + num2str(thresh_1))
 xlabel('Epoch')
 subplot(122)
 hold on, plot(effect_dis.','.')
+hold on, plot(thresh_2*ones(1,n_epoch))
 title("Effectiveness ::: Threshold = " + num2str(thresh_2))
 xlabel('Epoch')
 sgtitle("Training Performance with discriminators")
@@ -133,16 +136,18 @@ sgtitle("Training Performance with discriminators")
 figure,
 subplot(121)
 hold on, plot(stealth_sim.','.')
+hold on, plot(thresh_1*ones(1,n_epoch))
 title("Stealthiness ::: Threshold = " + num2str(thresh_1))
 xlabel('Epoch')
 subplot(122)
 hold on, plot(effect_sim.','.')
+hold on, plot(thresh_2*ones(1,n_epoch))
 title("Effectiveness ::: Threshold = " + num2str(thresh_2))
 xlabel('Epoch')
 sgtitle("Training Performance with model simulation")
 
 %% Testing performance
-[test_score_dis,test_score_sim,~,~,~,~] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,200,true);
+[test_score_dis,test_score_sim,~,~,~,~] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,500,t_sim_stop,true);
 disp("Testing score with discriminators = " + num2str(test_score_dis) + " ::: Target = " + num2str(alpha))
 disp("Testing score with model simualtion = " + num2str(test_score_sim) + " ::: Target = " + num2str(alpha))
 

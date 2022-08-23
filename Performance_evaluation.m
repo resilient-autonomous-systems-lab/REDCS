@@ -1,4 +1,4 @@
-function [test_score_dis,test_score_sim,y_stealth,y_effect,stealth_index, effect_index] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test,plot_flag)
+function [test_score_dis,test_score_sim,y_stealth,y_effect,stealth_index, effect_index] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test,t_sim_stop,plot_flag)
 %% function test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds)
 % two tests:
 %           1) run generator, obtain stealth and effect indexes from discriminators
@@ -9,6 +9,7 @@ function [test_score_dis,test_score_sim,y_stealth,y_effect,stealth_index, effect
 %        effect_net       : dl object for effectiveness network
 %        thresholds       : [1-by-2] [thresh_1 (threshold for steathiness), thresh_2 (threshold for effectiveness)]
 %        n_test           : [scalar] number of test samples
+%        t_sim_stop       : [scalar] total simulation time
 %        plot_flag        : [false/true] plot flag for test performance
 % Outputs:
 %        test_score_dis       : [scalar] the ratio of feasible attacks among all samples (with discrimiantors)
@@ -47,10 +48,12 @@ if plot_flag
     figure,
     subplot(121)
     hold on, plot(y_stealth,'.')
-    title("Stealthiness ::: Threshold = " + num2str(thresh_1))
+    hold on, plot(thresh_1*ones(1,n_test))
+    title("Stealthiness")
     subplot(122)
     hold on, plot(y_effect,'.')
-    title("Effectiveness ::: Threshold = " + num2str(thresh_2))
+    hold on, plot(thresh_2*ones(1,n_test))
+    title("Effectiveness")
     
     sgtitle("Testing Performance with discriminators")
 end
@@ -68,13 +71,17 @@ f2_out = thresh_2 - effect_index;
 test_score_sim = sum((f1_out<=0) & (f2_out<=0))/n_test;
 
 if plot_flag
+    save('test_result','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
+    
     figure,
     subplot(121)
     hold on, plot(stealth_index,'.')
-    title("Stealthiness ::: Threshold = " + num2str(thresh_1))
+    hold on, plot(thresh_1*ones(1,n_test))
+    title("Stealthiness")
     subplot(122)
     hold on, plot(effect_index,'.')
-    title("Effectiveness ::: Threshold = " + num2str(thresh_2))
+    hold on, plot(thresh_2*ones(1,n_test))
+    title("Effectiveness")
     
     sgtitle("Testing Performance with model simulation")
 end
