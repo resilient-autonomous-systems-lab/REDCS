@@ -7,7 +7,7 @@ close all
 Run_sim;
 
 %% global training parameters
-n_epoch         = 20;
+n_epoch         = 10;
 
 generate_random_data_flag = true;
 generate_generator_data_flag = true;
@@ -19,7 +19,7 @@ alpha = 0.7;  % probability of success
 % beta  = 1 - alpha;
 
 thresh_1 = 0.6;  % threshold for stealthiness
-thresh_2 = 0.3;  % threshold for effectivness
+thresh_2 = 0.06;  % threshold for effectivness
 thresholds = [thresh_1,thresh_2];
 
 
