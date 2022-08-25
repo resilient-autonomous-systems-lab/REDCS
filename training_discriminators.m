@@ -1,4 +1,4 @@
-function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_training_info] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index, maxEpochs)
+function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_training_info] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index, maxEpochs)
 %% function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_training_info] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index, maxEpochs)
 % train the two discriminator network (regression network) to learn the relationship from attack signal to effectiveness and stealthiness respectively
 % Inputs:
@@ -19,7 +19,17 @@ function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_tr
 %
 
 %% training parameters 
-mini_batch_size = 5000;
+%% Initialize Discriminators
+inp_size_dis = 3*n_attacked_nodes;
+activation_fcns_effect = ["relu","tanh","sigmoid"];
+n_neurons_effect = [5*inp_size_dis,5*inp_size_dis,1];
+effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
+
+activation_fcns_stealth = ["relu","tanh","sigmoid"];
+n_neurons_stealth = [5*inp_size_dis,5*inp_size_dis,1];
+stealth_net = create_dl_network(inp_size_dis,activation_fcns_stealth,n_neurons_stealth);  % Stealthiness network
+
+mini_batch_size = 1000;
 
 options = trainingOptions('adam', ...
     'ExecutionEnvironment','cpu', ...

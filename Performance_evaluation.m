@@ -60,7 +60,13 @@ end
 
 %% Testing performance with repect to the model simulation
 Z_attack_data = double(extractdata(test_out));
-attack_data = ramp_attack_policy(Z_attack_data,t_sim_stop);
+
+attack_start_time_interval  = round([0.1 0.2]*t_sim_stop);
+attack_time_span_max_rate   = 0.3;
+attack_max = 50;
+policy_param = {attack_start_time_interval, attack_time_span_max_rate, attack_max};
+
+attack_data = ramp_attack_policy(policy_param,Z_attack_data,t_sim_stop);
 
 sim_obj = [];
 [sim_obj, effect_index,stealth_index]  = get_simulation_object_sample_system(sim_obj,attack_data);

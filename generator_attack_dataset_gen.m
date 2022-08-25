@@ -9,7 +9,12 @@ if generate_data_flag == true
     Z_train_dlarray = dlarray(Z_train,"CB");                     % covert to dlarray
     
     Z_attack_data = double(extractdata(forward(gen_net,Z_train_dlarray)));
-    attack_data = ramp_attack_policy(Z_attack_data,t_sim_stop);
+
+    attack_start_time_interval  = round([0.1 0.2]*t_sim_stop);
+    attack_time_span_max_rate   = 0.3;
+    attack_max = 50;
+    policy_param = {attack_start_time_interval, attack_time_span_max_rate, attack_max};
+    attack_data = ramp_attack_policy(policy_param,Z_attack_data,t_sim_stop);
 
     % getting simulation object
     sim_obj = [];
