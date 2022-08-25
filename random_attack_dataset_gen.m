@@ -11,7 +11,8 @@ catch
     
 
     %% getting simulation object
-    distance_index = sum(Z_attack_data.*Z_attack_data,1);
+%     distance_index = sum(Z_attack_data.*Z_attack_data,1);
+    distance_index = target_fcn(Z_attack_data);
 
     save('random_attack_data','distance_index','Z_attack_data','-v7.3');
 end

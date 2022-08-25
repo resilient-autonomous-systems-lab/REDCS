@@ -30,7 +30,8 @@ test_score_dis = sum((f1_out<=0) & (f2_out<=0))/n_test;
 
 %% Testing performance with repect to the model simulation
 Z_attack_data = double(extractdata(test_out));
-distance_index = sum(Z_attack_data.*Z_attack_data,1);
+% distance_index = sum(Z_attack_data.*Z_attack_data,1);
+distance_index = target_fcn(Z_attack_data);
 
 f1_out = distance_index - thresh_1;
 f2_out = thresh_2 - distance_index;

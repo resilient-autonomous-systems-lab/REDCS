@@ -2,7 +2,7 @@ function net = create_dl_network(inp_size,activation_fcns,n_neurons)
 %% function net = create_dl_network(inp_size,activation_fcns,n_neurons)
 % create deep learning object for neural network
 % current support activation functions:
-%                                       sigmoid, relu, tanh
+%                                       sigmoid, relu, tanh, linear
 % Inputs:
 %        inp_size       : [scalar] input size
 %        activation_fcns: [1-by-n_layers] string array of activation functions for hidden layers and output layer
@@ -28,6 +28,9 @@ for i_layer=1:n_layers
     elseif activation_fcns(i_layer) == 'tanh'
         layer_i = [fullyConnectedLayer(n_neurons(i_layer),"Name","fc_"+num2str(i_layer))
                    tanhLayer("Name","tanh"+num2str(i_layer))];
+        layers = [layers;layer_i];
+    elseif activation_fcns(i_layer) == 'linear'
+        layer_i = [fullyConnectedLayer(n_neurons(i_layer),"Name","fc_"+num2str(i_layer))];
         layers = [layers;layer_i];
     end
 end

@@ -5,7 +5,7 @@ close all
 
 
 %% global training parameters
-n_epoch         = 10;
+n_epoch         = 2;
 
 generate_generator_data_flag = true;
 n_random_sim_samples = 2000;  % Number of random attack dataset per epoch used to train descriminators

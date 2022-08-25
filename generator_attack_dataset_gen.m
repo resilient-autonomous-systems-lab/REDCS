@@ -9,7 +9,8 @@ if generate_data_flag == true
     Z_attack_data = double(extractdata(forward(gen_net,Z_train_dlarray)));
 
     % run funtion
-    distance_index = sum(Z_attack_data.*Z_attack_data,1);
+%     distance_index = sum(Z_attack_data.*Z_attack_data,1);
+    distance_index = target_fcn(Z_attack_data);
 
     save('generator_attack_data','distance_index','Z_attack_data','-v7.3');
 
