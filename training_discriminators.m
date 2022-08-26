@@ -1,14 +1,14 @@
-function [net,loss] = training_discriminators(inp_size,Z_input,Z_output,n_samples,mini_batch_size,loss_curve_param)
+function [net,loss] = training_discriminators(i_epoch,inp_size,Z_input,Z_output,n_samples,mini_batch_size,loss_curve_param)
 %
 
 %% Initialize Discriminators
 layers = [featureInputLayer(inp_size,"Name","input")
-          fullyConnectedLayer(500*inp_size,"Name","hidden layer")
-          reluLayer("Name","sigmoid")
-          fullyConnectedLayer(1000*inp_size,"Name","hidden layer")
-          reluLayer("Name","sigmoid")
-          fullyConnectedLayer(500*inp_size,"Name","hidden layer")
-          reluLayer("Name","sigmoid")
+          fullyConnectedLayer(50*inp_size,"Name","hidden layer")
+          reluLayer("Name","relu1")
+          fullyConnectedLayer(100*inp_size,"Name","hidden layer")
+          reluLayer("Name","relu2")
+          fullyConnectedLayer(50*inp_size,"Name","hidden layer")
+          reluLayer("Name","relu3")
           fullyConnectedLayer(1,"Name","output")];
 net = dlnetwork(layers);
 
@@ -42,7 +42,7 @@ for ind = 1:mini_batch_size:n_samples
     input_iter = Z_input(:,idx);
     output_iter = Z_output(:,idx);
     % calculate loss and gradients
-    [gradients,net_state,loss] = dlfeval(@model_loss,net,input_iter,output_iter,mini_batch_size); % forward propogation, simulation, loss calculation, gradient calculation 
+    [gradients,net_state,loss] = dlfeval(@model_loss,net,input_iter,output_iter); % forward propogation, simulation, loss calculation, gradient calculation 
     net.State = net_state;                    % update network state
     
     % Update the network parameters using the Adam optimizer.
@@ -53,13 +53,13 @@ for ind = 1:mini_batch_size:n_samples
     % Display the training progress.
     figure(loss_fig_dis)
     D = duration(0,0,toc(start),Format="hh:mm:ss");
-    addpoints(disLossTrain,iteration,double(loss))
+    addpoints(disLossTrain,iteration+(i_epoch-1)*n_samples,double(loss))
     title("Discriminator Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
     drawnow
 end
 
 
-function [gradients,states,loss] = model_loss(net,input,target_output,mini_batch_size)
+function [gradients,states,loss] = model_loss(net,input,target_output)
 
 [output, states] = predict(net,input);
 % loss = sum((output - target_output).^2) / mini_batch_size;

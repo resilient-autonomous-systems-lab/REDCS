@@ -1,4 +1,4 @@
-function workshop
+function workshop_with_neural_network
 clc
 clear
 close all
@@ -8,7 +8,7 @@ close all
 n_epoch         = 5;
 
 generate_generator_data_flag = true;
-n_random_sim_samples = 5000;  % Number of random attack dataset per epoch used to train descriminators
+n_random_sim_samples = 100000;  % Number of random attack dataset per epoch used to train descriminators
 n_generator_sim_sample = round(n_random_sim_samples);
 
 %% Initialize Generator network
@@ -23,8 +23,8 @@ thresholds = [thresh_1,thresh_2];
 inp_size = 5;
 out_size = 2;  % dimension of smallest Eucliden space containing set S.
 
-activation_fcns_gen = ["relu","tanh","relu","relu","sigmoid"];
-n_neurons_gen = [50*inp_size,100*inp_size,100*inp_size,50*inp_size,out_size];
+activation_fcns_gen = ["relu","sigmoid","tanh"];
+n_neurons_gen = [10*inp_size,20*inp_size,out_size];
 gen_net = create_dl_network(inp_size,activation_fcns_gen,n_neurons_gen);
 
 
@@ -68,17 +68,13 @@ for i_epoch = 1:n_epoch
 
     %% Train Discriminator network
     mini_batch_size = 1000;
-    n_samples = round(length(Z_attack_data)/mini_batch_size);
-    [discriminator_net,~] = training_discriminators(out_size,dlarray(Z_attack_data,'CB'),dlarray(distance_index,'CB'),n_samples,mini_batch_size,loss_curve_param_dis);
+    n_batch= round(length(Z_attack_data)/mini_batch_size);
+    n_samples       = n_batch*mini_batch_size;
+    [discriminator_net,~] = training_discriminators(i_epoch,out_size,dlarray(Z_attack_data,'CB'),dlarray(distance_index,'CB'),n_samples,mini_batch_size,loss_curve_param_dis);
 
     %% Training Generator with adam
     gen_net = training_generator(i_epoch,gen_net,discriminator_net,alpha,thresholds,loss_curve_param_gen);
 
 end
-
-%% Testing performance
-[test_score_dis,test_score_sim,~,~] = Performance_evaluation(gen_net,discriminator_net,thresholds,10000,true);
-disp("Testing score with discriminators = " + num2str(test_score_dis) + " ::: Target = " + num2str(alpha))
-disp("Testing score with model simualtion = " + num2str(test_score_sim) + " ::: Target = " + num2str(alpha))
 
 keyboard

@@ -32,7 +32,8 @@ loss_curve_param = {loss_fig_dis,disLossTrain,start};
 
 %% plot function
 test_out = predict(net_trained,Z_dl_data);
-figure, plot(Z_dl_data, test_out,'.'), hold on, plot(Z_dl_data,distance_index,'.')
+% figure, plot(Z_dl_data, test_out,'.'), hold on, plot(Z_dl_data,distance_index,'.');
+figure, plot(test_out-distance_index,'.');
 
 function out = f(x)
 
