@@ -6,14 +6,14 @@ close all
 maxEpochs = 1000;
 
 %% prepare datatset
-inp_size = 1;
+inp_size = 2;
 mini_batch_size = 1000;
-n_batch         = 10000;
+n_batch         = 5000;
 n_samples       = n_batch*mini_batch_size;
 
 Z_attack_data = rand(inp_size,n_samples);
 Z_dl_data = dlarray(Z_attack_data,'CB');
-distance_index = f(Z_attack_data).';
+distance_index = f(Z_dl_data);
 
 %% initialize loss curve plot
 loss_fig_dis = figure;
@@ -31,9 +31,8 @@ loss_curve_param = {loss_fig_dis,disLossTrain,start};
 
 
 %% plot function
-test_out = forward(net_trained,Z_dl_data);
-
-figure, plot(Z_attack_data, extractdata(test_out),'.'), hold on, plot(Z_attack_data,distance_index,'.')
+test_out = predict(net_trained,Z_dl_data);
+figure, plot(Z_dl_data, test_out,'.'), hold on, plot(Z_dl_data,distance_index,'.')
 
 function out = f(x)
 
