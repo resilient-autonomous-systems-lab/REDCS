@@ -10,19 +10,19 @@ load_param;
 n_epoch         = 10;
 
 generate_generator_data_flag = true;
-n_random_sim_samples = 5000;  % Number of random attack dataset per epoch used to train descriminators
+n_random_sim_samples = 10000;  % Number of random attack dataset per epoch used to train descriminators
 n_generator_sim_sample = round(n_random_sim_samples);
 
 %% Initialize Generator network
 alpha = 0.8;  % probability of success
 
-thresh_1 = 0.2;  % threshold for stealthiness
-thresh_2 = 0.04;  % threshold for effectivness
+thresh_1 = 50;  % threshold for stealthiness
+thresh_2 = 0.5;  % threshold for effectivness
 thresholds = [thresh_1,thresh_2];
 
 
 inp_size = 10;
-out_size = n_meas;  % dimension of smallest Eucliden space containing set S.
+out_size = n_attacked_nodes;  % dimension of smallest Eucliden space containing set S.
 
 activation_fcns_gen = ["relu","sigmoid","tanh","linear"];
 n_neurons_gen = [10*inp_size,20*inp_size,20*inp_size,out_size];
@@ -79,7 +79,7 @@ for i_epoch = 1:n_epoch
     [effect_net,stealth_net] = training_discriminators(n_meas,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch);
 
     %% Training Generator with adam
-    gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param_gen);
+    gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,sim_param,loss_curve_param_gen);
 
 end
 
