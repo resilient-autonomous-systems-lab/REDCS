@@ -29,6 +29,9 @@ for i_layer=1:n_layers
         layer_i = [fullyConnectedLayer(n_neurons(i_layer),"Name","fc_"+num2str(i_layer))
                    tanhLayer("Name","tanh"+num2str(i_layer))];
         layers = [layers;layer_i];
+    elseif activation_fcns(i_layer) == 'linear'
+        layer_i = [fullyConnectedLayer(n_neurons(i_layer),"Name","fc_"+num2str(i_layer))];
+        layers = [layers;layer_i];
     end
 end
 
