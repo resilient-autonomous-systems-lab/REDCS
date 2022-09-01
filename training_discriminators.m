@@ -15,7 +15,7 @@ function [effect_net_trained,stealth_net_trained] = training_discriminators(n_at
 %
 
 %% parameters
-inp_size_dis = n_attacked_nodesrelu, ;
+inp_size_dis = n_attacked_nodes;
 
 %% effect network
 activation_fcns_effect = ["relu","relu","relu","linear"];
