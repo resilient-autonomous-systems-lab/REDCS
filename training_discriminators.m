@@ -1,4 +1,4 @@
-function [effect_net_trained,stealth_net_trained] = training_discriminators(n_meas,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch)
+function [effect_net_trained,stealth_net_trained] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch)
 %% function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_training_info] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index, maxEpochs)
 % train the two discriminator network (regression network) to learn the relationship from attack signal to effectiveness and stealthiness respectively
 % Inputs:
@@ -15,7 +15,7 @@ function [effect_net_trained,stealth_net_trained] = training_discriminators(n_me
 %
 
 %% parameters
-inp_size_dis = n_meas;
+inp_size_dis = n_attacked_nodesrelu, ;
 
 %% effect network
 activation_fcns_effect = ["relu","relu","relu","linear"];

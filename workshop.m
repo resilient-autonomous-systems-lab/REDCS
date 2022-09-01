@@ -76,7 +76,7 @@ for i_epoch = 1:n_epoch
 
 
     %% Train Discriminator network
-    [effect_net,stealth_net] = training_discriminators(n_meas,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch);
+    [effect_net,stealth_net] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch);
 
     %% Training Generator with adam
     gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,sim_param,loss_curve_param_gen);
