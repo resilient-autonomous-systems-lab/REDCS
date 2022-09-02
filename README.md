@@ -16,13 +16,12 @@ run workshop.m
 
 ### Network structure:
 
-- Generator: <br>
+- <pre>   Generator:                             Discriminators: </pre>
 
-Relu, sigmoid, tanh, linear
+![image](https://user-images.githubusercontent.com/36635562/188036096-1432e169-0a83-4c11-953f-3bd1e60e08ad.png)
+![image](https://user-images.githubusercontent.com/36635562/188036418-61bdae74-5376-4c5b-a9d7-7ce7d694c5f0.png)
 
-- Discriminators: <br>
 
-Relu, relu, relu, linear
 
 
 ### 1-epoch result
