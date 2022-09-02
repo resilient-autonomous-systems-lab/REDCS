@@ -1,4 +1,4 @@
-function [test_score_dis,test_score_sim,y_stealth,y_effect,stealth_index, effect_index] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test,t_sim_stop,plot_flag)
+function [test_score_dis,test_score_sim,y_stealth,y_effect,stealth_index, effect_index] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test,policy_param,plot_flag)
 %% function test_score = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds)
 % two tests:
 %           1) run generator, obtain stealth and effect indexes from discriminators
@@ -60,13 +60,7 @@ end
 
 %% Testing performance with repect to the model simulation
 Z_attack_data = double(extractdata(test_out));
-
-attack_start_time_interval  = round([0.1 0.2]*t_sim_stop);
-attack_time_span_max_rate   = 0.3;
-attack_max = 50;
-policy_param = {attack_start_time_interval, attack_time_span_max_rate, attack_max};
-
-attack_data = ramp_attack_policy(policy_param,Z_attack_data,t_sim_stop);
+attack_data = ramp_attack_policy(policy_param,Z_attack_data);
 
 sim_obj = [];
 [sim_obj, effect_index,stealth_index]  = get_simulation_object_sample_system(sim_obj,attack_data);

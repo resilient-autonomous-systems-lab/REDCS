@@ -1,12 +1,12 @@
-function attack_data = ramp_attack_policy(policy_param,Z_attack_data,t_sim_stop)
-%% function attack_data = attack_policy(Z_attack_data,t_sim_stop)
+function attack_data = ramp_attack_policy(policy_param,Z_attack_data)
+%% function attack_data = ramp_attack_policy(policy_param,Z_attack_data)
 % ramp attack policy
 % inputs:
 %        policy_param: {attack_start_time_interval, attack_time_span_max_rate, attack_max}
 %                     - attack_start_time_interval: [1-by-2] start time interval
 %                     - attack_time_span_max_rate: [scalar] attack_time_span_max = attack_time_span_max_rate*t_time_stop
 %                     - attack_max: [scalar] final ramp deviation
-%        t_sim_stop: total simulation time
+%                     - t_time_stop: [scalar] total simualtion time of system
 %        Z_attack: [3*n_attacked_nodes,n_sim_samples] attack parameters (percenatages) for each attack node
 %              Z_attack(1:n_attacked_nodes,:)                     : attack start time for each attack node
 %              Z_attack(n_attacked_nodes+1:2*n_attacked_nodes,:)  : attack time spans for each attack node
@@ -24,6 +24,7 @@ attack_start_time_interval = policy_param{1,1};
 delta_attack_start_time_interval = attack_start_time_interval(2) - attack_start_time_interval(1);
 % attack_time_span_max = round(0.3*t_sim_stop);
 attack_time_span_max_rate = policy_param{1,2};
+t_sim_stop = policy_param{1,4};
 attack_time_span_max = attack_time_span_max_rate*t_sim_stop;
 % attack_max = 50;
 attack_max = policy_param{1,3};

@@ -1,4 +1,4 @@
-function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_training_info] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index, maxEpochs)
+function [effect_net_trained,stealth_net_trained] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index)
 %% function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_training_info] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index, maxEpochs)
 % train the two discriminator network (regression network) to learn the relationship from attack signal to effectiveness and stealthiness respectively
 % Inputs:
@@ -18,36 +18,23 @@ function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_tr
 % 08/18/2022
 %
 
-%% training parameters 
-%% Initialize Discriminators
+
+%% effect network
 inp_size_dis = 3*n_attacked_nodes;
-activation_fcns_effect = ["relu","tanh","sigmoid"];
-n_neurons_effect = [5*inp_size_dis,5*inp_size_dis,1];
+activation_fcns_effect = ["relu","relu","relu","linear"];
+n_neurons_effect = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
 effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
 
-activation_fcns_stealth = ["relu","tanh","sigmoid"];
-n_neurons_stealth = [5*inp_size_dis,5*inp_size_dis,1];
+dataset_effect_net = {Z_attack_data,effect_index};
+effect_net_trained = train_regression_network(effect_net,dataset_effect_net,loss_curve_param_dis1,i_epoch,"effect network ,");
+
+
+%% stealth network
+activation_fcns_stealth = ["relu","tanh","relu","linear"];
+n_neurons_stealth = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
 stealth_net = create_dl_network(inp_size_dis,activation_fcns_stealth,n_neurons_stealth);  % Stealthiness network
 
-mini_batch_size = 1000;
+dataset_stealth_net = {Z_attack_data,stealth_index};
+stealth_net_trained = train_regression_network(stealth_net,dataset_stealth_net,loss_curve_param_dis2,i_epoch,"stealth network ,");
 
-options = trainingOptions('adam', ...
-    'ExecutionEnvironment','cpu', ...
-    'MaxEpochs',maxEpochs, ...
-    'MiniBatchSize',mini_batch_size, ...
-    'GradientThreshold',1, ...
-    'Verbose',false, ...
-    'Plots','none');
 
-%% training
-effect_net_layers = [effect_net.Layers;regressionLayer];
-[effect_series_net, effect_training_info]   = trainNetwork(Z_attack_data.',effect_index,effect_net_layers,options);
-effect_lgraph = layerGraph(effect_series_net);
-effect_lgraph = removeLayers(effect_lgraph,'regressionoutput');
-effect_net_trained = dlnetwork(effect_lgraph);
-
-stealth_net_layers = [stealth_net.Layers;regressionLayer];
-[stealth_series_net, stealth_training_info] = trainNetwork(Z_attack_data.',stealth_index,stealth_net_layers,options);
-stealth_lgraph = layerGraph(stealth_series_net);
-stealth_lgraph = removeLayers(stealth_lgraph,'regressionoutput');
-stealth_net_trained = dlnetwork(stealth_lgraph);
