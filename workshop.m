@@ -11,7 +11,7 @@ n_epoch         = 10;
 
 generate_generator_data_flag = true;
 n_random_sim_samples = 10000;  % Number of random attack dataset per epoch used to train descriminators
-n_generator_sim_sample = round(n_random_sim_samples/2);
+n_generator_sim_sample = round(n_random_sim_samples);
 
 %% Initialize Generator network
 alpha = 0.7;  % probability of success
@@ -55,13 +55,9 @@ ylabel("Loss")
 grid on
 
 start = tic;
-loss_curve_param = {loss_fig_gen,genLossTrain,start};
-
-n_test_sample = 20;
-effect_dis = zeros(n_test_sample,n_epoch);
-stealth_dis = zeros(n_test_sample,n_epoch);
-effect_sim = zeros(n_test_sample,n_epoch);
-stealth_sim = zeros(n_test_sample,n_epoch);
+loss_curve_param_gen = {loss_fig_gen,genLossTrain,start};
+loss_curve_param_dis1 = {loss_fig_dis1,dis1LossTrain,start};
+loss_curve_param_dis2 = {loss_fig_dis2,dis2LossTrain,start};
 
  %%% random attack dataset 
 [sim_obj_rand,Z_attack_data_rand,effect_index_rand,stealth_index_rand] = random_attack_dataset_gen(n_attacked_nodes,n_random_sim_samples,policy_param);
@@ -74,18 +70,18 @@ for i_epoch = 1:n_epoch
 
     %%% compose training dataset for discriminator
     sim_obj = [sim_obj_rand;sim_obj_gen];
-    Z_attack_data = [Z_attack_data_rand,Z_attack_data_gen];
-    effect_index = [effect_index_rand;effect_index_gen];
-    stealth_index = [stealth_index_rand;stealth_index_gen];
+    Z_attack_data = dlarray([Z_attack_data_rand,Z_attack_data_gen],'CB');
+    effect_index = dlarray([effect_index_rand;effect_index_gen].','CB');
+    stealth_index = dlarray([stealth_index_rand;stealth_index_gen].','CB');
     
     save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
 
 
     %% Train Discriminator network
-    [effect_net,stealth_net] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index);
+    [effect_net,stealth_net] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch);
 
     %% Training Generator with adam
-    gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param);
+    gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param_gen);
 
 end
 

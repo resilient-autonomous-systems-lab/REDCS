@@ -44,11 +44,11 @@ attack_start_times      = attack_start_injection*ones(n_meas,1);
 attack_full_times       = attack_start_times + 10;
 attack_final_deviations = zeros(n_meas,1);
 
-% attack location 
+% attack location
+n_attacked_nodes = round(.5*n_meas); % number of attacked nodes
 try % make sure the attack support not change during a training process
     attack_indices = load('attack_support.mat').attack_indices;
 catch
-    n_attacked_nodes = round(.5*n_meas); % number of attacked nodes
     attack_indices = sort(randperm(n_meas,n_attacked_nodes));  % inidices of nodes to attack;
     save attack_support.mat attack_indices
 end
