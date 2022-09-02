@@ -11,6 +11,9 @@ git checkout demo_linear_system_fcn
 run workshop.m
 ```
 
+### setup
+![image](https://user-images.githubusercontent.com/36635562/188035031-b889ba67-fa8a-4f84-b2ef-fc90eb816e91.png)
+
 ### Network structure:
 
 - Generator: <br>
