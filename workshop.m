@@ -7,10 +7,10 @@ close all
 Run_sim;
 
 %% global training parameters
-n_epoch         = 10;
+n_epoch         = 20;
 
 generate_generator_data_flag = true;
-n_random_sim_samples = 10000;  % Number of random attack dataset per epoch used to train descriminators
+n_random_sim_samples = 5000;  % Number of random attack dataset per epoch used to train descriminators
 n_generator_sim_sample = round(n_random_sim_samples);
 
 %% Initialize Generator network
@@ -86,6 +86,7 @@ for i_epoch = 1:n_epoch
 end
 
 %% Testing performance
+save('traiend_network.mat','gen_net','stealth_net','effect_net','-v7.3');
 [test_score_dis,test_score_sim,~,~,~,~] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,500,policy_param,true);
 disp("Testing score with discriminators = " + num2str(test_score_dis) + " ::: Target = " + num2str(alpha))
 disp("Testing score with model simualtion = " + num2str(test_score_sim) + " ::: Target = " + num2str(alpha))

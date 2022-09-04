@@ -23,7 +23,7 @@ thresh_2 = thresholds(2);
 inp_size = gen_net.Layers(1, 1).InputSize;
 
 mini_batch_size = 5000;
-n_batch         = 100;
+n_batch         = 50;
 n_samples       = n_batch*mini_batch_size;
 
 loss_fig_gen = loss_curve_param{1,1};
