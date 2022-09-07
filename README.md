@@ -9,4 +9,10 @@ run `workshop _with_quadratic_fit.m`
 ![image](https://user-images.githubusercontent.com/36635562/187001260-af94858f-c579-4d74-bd78-55cb4deb5664.png)
 ## Train generator with neural network
 run `workshop _with_neural_network.m`
+- Generator:
+Relu, Sigmoid, Tanh
+- Discriminator:
+Relu, Relu, Linear
+
 ![image](https://user-images.githubusercontent.com/36635562/187001291-c404329d-e125-40b5-aea8-c85053493275.png)
+
