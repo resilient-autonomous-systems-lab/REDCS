@@ -12,17 +12,17 @@ d = 0.0146;
 param = {a,b,c1,c2,c12,c3,d};
 
 P_in = 101325;
-P_out = 1.5*P_in;
+P_out = 1.68*P_in;
 
 x0 = [0;0];
-q_ref = 0.833;
+q_ref = 5;
 D = [0,1];
 
-% %% controller
-% Pc = [-1 -2.5 -4 -2 -1.3 -2.5 -3 -5 -1.5 -2.4];
-% K = place(A,B,Pc);
-% disp('controller poles');
-% eig(A-B*K)
+%% controller
+Kp = 2;
+Ki = 1.5;
+Kd = 1;
+
 % 
 % %% observer
 % Po = 2*Pc;
@@ -58,7 +58,7 @@ noise_seed = 23341;
 % 
 % 
 % %% Simulation parameters
-t_sim_stop = 100;  % total simulation time per incidence
+t_sim_stop = 1000;  % total simulation time per incidence
 % 
 % % attack policy parameters
 % attack_start_time_interval  = round([0.1 0.2]*t_sim_stop);
@@ -66,9 +66,9 @@ t_sim_stop = 100;  % total simulation time per incidence
 % attack_max = 50;
 % policy_param = {attack_start_time_interval, attack_time_span_max_rate, attack_max, t_sim_stop};
 % 
-% % getting nominal values
-% model = 'sample_system';
-% noise_trigger = 0;
+% getting nominal values
+model = 'sample_system';
+noise_trigger = 0;
 % out = sim(model);
 % 
 % r_nominal  = out.residual;
