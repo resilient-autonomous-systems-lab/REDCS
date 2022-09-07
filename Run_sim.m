@@ -1,7 +1,10 @@
 clear 
 clc
 
-%% Run sim
+%% Simulation parameters
+t_sim_stop = 1000;  % total simulation time per incidence
+
+%% Compressors model
 a = 1/47.7465;
 b = a*(-0.0951);
 c1 = (0.0951-(1/800))/(1.3223*10^6);
@@ -11,24 +14,26 @@ c3 = 1;
 d = 0.0146;
 param = {a,b,c1,c2,c12,c3,d};
 
-P_in = 101325;
-P_out = 1.68*P_in;
+P_in = 101325;           % input pressure
+P_middle = 1.68*P_in;    % transmission line pressure (given by supervised control)
+P_out = 2*1.68*P_in;   % output pressure (given by supervised control)
 
-x0 = [0;0];
-q_ref = 5;
-D = [0,1];
+x0 = [0;0];  
+
+q_ref1 = 5;
+q_ref2 = 10;
+
+%% transmission line
+% use simulink signal builder the stochastic pressure inputs
+L = 0.1;  % delay term
+A = 20;   % area of pipline cut
 
 %% controller
 Kp = 2;
 Ki = 1.5;
 Kd = 1;
 
-% 
-% %% observer
-% Po = 2*Pc;
-% L = place(A.',C.',Po).';
-% disp('observer poles')
-% eig(A-L*C)
+
 
 %% Noise
 noise_seed = 23341;
@@ -57,8 +62,6 @@ noise_seed = 23341;
 % end
 % 
 % 
-% %% Simulation parameters
-t_sim_stop = 1000;  % total simulation time per incidence
 % 
 % % attack policy parameters
 % attack_start_time_interval  = round([0.1 0.2]*t_sim_stop);
