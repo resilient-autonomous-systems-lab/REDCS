@@ -19,21 +19,37 @@ function [effect_net_trained,stealth_net_trained] = training_discriminators(n_at
 % 08/18/2022
 %
 
+%% load network
+try
+    load_nets = load("trained_network");
+    effect_net = load_nets.effect_net;
+    stealth_net = load_nets.stealth_net;
+catch
+    inp_size_dis = 3*n_attacked_nodes;
+    activation_fcns_effect = ["relu","relu","relu","linear"];
+    n_neurons_effect = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
+    effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
+
+    activation_fcns_stealth = ["relu","tanh","relu","linear"];
+    n_neurons_stealth = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
+    stealth_net = create_dl_network(inp_size_dis,activation_fcns_stealth,n_neurons_stealth);  % Stealthiness network
+end
+
 
 %% effect network
-inp_size_dis = 3*n_attacked_nodes;
-activation_fcns_effect = ["relu","relu","relu","linear"];
-n_neurons_effect = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
-effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
+% inp_size_dis = 3*n_attacked_nodes;
+% activation_fcns_effect = ["relu","relu","relu","linear"];
+% n_neurons_effect = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
+% effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
 
 dataset_effect_net = {Z_attack_data,effect_index};
 effect_net_trained = train_regression_network(effect_net,dataset_effect_net,loss_curve_param_dis1,i_epoch,"effect network ,");
 
 
 %% stealth network
-activation_fcns_stealth = ["relu","tanh","relu","linear"];
-n_neurons_stealth = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
-stealth_net = create_dl_network(inp_size_dis,activation_fcns_stealth,n_neurons_stealth);  % Stealthiness network
+% activation_fcns_stealth = ["relu","tanh","relu","linear"];
+% n_neurons_stealth = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
+% stealth_net = create_dl_network(inp_size_dis,activation_fcns_stealth,n_neurons_stealth);  % Stealthiness network
 
 dataset_stealth_net = {Z_attack_data,stealth_index};
 stealth_net_trained = train_regression_network(stealth_net,dataset_stealth_net,loss_curve_param_dis2,i_epoch,"stealth network ,");

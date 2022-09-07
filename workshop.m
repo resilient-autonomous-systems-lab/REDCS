@@ -7,7 +7,7 @@ close all
 Run_sim;
 
 %% global training parameters
-n_epoch         = 20;
+n_epoch         = 5;
 
 generate_generator_data_flag = true;
 n_random_sim_samples = 5000;  % Number of random attack dataset per epoch used to train descriminators
@@ -18,16 +18,21 @@ alpha = 0.7;  % probability of success
 % beta  = 1 - alpha;
 
 thresh_1 = 4;  % threshold for stealthiness
-thresh_2 = 0.04;  % threshold for effectivness
+thresh_2 = 0.08;  % threshold for effectivness
 thresholds = [thresh_1,thresh_2];
 
 
 inp_size = 10;
 out_size = 3*n_attacked_nodes;  % dimension of smallest Eucliden space containing set S.
 
-activation_fcns_gen = ["relu","sigmoid","tanh","sigmoid"];
-n_neurons_gen = [50*inp_size,100*inp_size,50*inp_size,out_size];
-gen_net = create_dl_network(inp_size,activation_fcns_gen,n_neurons_gen);
+try
+    load_nets = load("trained_network");
+    gen_net = load_nets.gen_net;
+catch
+    activation_fcns_gen = ["relu","sigmoid","tanh","sigmoid"];
+    n_neurons_gen = [50*inp_size,100*inp_size,50*inp_size,out_size];
+    gen_net = create_dl_network(inp_size,activation_fcns_gen,n_neurons_gen);
+end
 
 
 %% loss curve Plot routine
@@ -83,10 +88,11 @@ for i_epoch = 1:n_epoch
     %% Training Generator with adam
     gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param_gen);
 
+    save('trained_network.mat','gen_net','stealth_net','effect_net','-v7.3');
 end
 
 %% Testing performance
-save('traiend_network.mat','gen_net','stealth_net','effect_net','-v7.3');
+% save('trained_network.mat','gen_net','stealth_net','effect_net','-v7.3');
 [test_score_dis,test_score_sim,~,~,~,~] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,500,policy_param,true);
 disp("Testing score with discriminators = " + num2str(test_score_dis) + " ::: Target = " + num2str(alpha))
 disp("Testing score with model simualtion = " + num2str(test_score_sim) + " ::: Target = " + num2str(alpha))
