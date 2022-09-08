@@ -2,7 +2,7 @@ clear
 clc
 
 %% Simulation parameters
-t_sim_stop = 1000;  % total simulation time per incidence
+t_sim_stop = 5000;  % total simulation time per incidence
 
 %% Compressors model
 a = 1/47.7465;
@@ -25,14 +25,19 @@ q_ref2 = 10;
 
 %% transmission line
 % use simulink signal builder the stochastic pressure inputs
-L = 0.1;  % delay term
-A = 20;   % area of pipline cut
+d_inj = 0.15; % Injector diameter, m
+A = (pi/4)*(d_inj*.0254)^2; % Injector cross sectional area; m3
+Cd = 0.001;  
+rho = 0.68;
 
 %% controller
-Kp = 2;
-Ki = 1.5;
-Kd = 1;
+Kp = 50;
+Ki = 20;
+Kd = 20;
 
+%% supervised controller
+q_ref = 10;  % reference pipline mass flow rate
+gamma = 0.1; % maximum deviation from reference pipline mass flow rate
 
 
 %% Noise
