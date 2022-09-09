@@ -1,4 +1,4 @@
-function [sim_out, effect_index,stealth_index] = get_simulation_object_sample_system(sim_inp_in,attack_data)
+function [sim_out] = get_simulation_object_sample_system(sim_inp_in,attack_data,attack_percentage)
 % Returns an array of Simulink.SimulationInput object for parrallel
 % execution
 %
@@ -39,17 +39,23 @@ if(isempty(sim_inp_in))
     sim_inp = repmat(Simulink.SimulationInput(model),batch_size,1);
     for iter = 1:batch_size
 
-        sim_inp(iter) = sim_inp(iter).setModelParameter('SimulationMode','rapid-accelerator');
-        sim_inp(iter) = sim_inp(iter).setModelParameter('RapidAcceleratorUpToDateCheck','off');
+%         sim_inp(iter) = sim_inp(iter).setModelParameter('SimulationMode','rapid-accelerator');
+%         sim_inp(iter) = sim_inp(iter).setModelParameter('RapidAcceleratorUpToDateCheck','off');
 
-        sim_inp(iter) = sim_inp(iter).setVariable('A',A);
-        sim_inp(iter) = sim_inp(iter).setVariable('B',B);
-        sim_inp(iter) = sim_inp(iter).setVariable('C',C);
-        sim_inp(iter) = sim_inp(iter).setVariable('Cc',Cc);
+        sim_inp(iter) = sim_inp(iter).setVariable('param',param);
+        sim_inp(iter) = sim_inp(iter).setVariable('P_in',P_in);
+        sim_inp(iter) = sim_inp(iter).setVariable('P_middle',P_middle);
+        sim_inp(iter) = sim_inp(iter).setVariable('P_out',P_out);
         sim_inp(iter) = sim_inp(iter).setVariable('x0',x0);
-        sim_inp(iter) = sim_inp(iter).setVariable('x_hat0',x_hat0);
-        sim_inp(iter) = sim_inp(iter).setVariable('K',K);
-        sim_inp(iter) = sim_inp(iter).setVariable('L',L);
+        sim_inp(iter) = sim_inp(iter).setVariable('A',A);
+        sim_inp(iter) = sim_inp(iter).setVariable('Cd',Cd);
+
+        sim_inp(iter) = sim_inp(iter).setVariable('Kp',Kp);
+        sim_inp(iter) = sim_inp(iter).setVariable('Ki',Ki);
+        sim_inp(iter) = sim_inp(iter).setVariable('Kd',Kd);
+
+        sim_inp(iter) = sim_inp(iter).setVariable('q_ref',q_ref);
+        sim_inp(iter) = sim_inp(iter).setVariable('eta',eta);
 
         sim_inp(iter) = sim_inp(iter).setVariable('noise_trigger',1);
         sim_inp(iter) = sim_inp(iter).setVariable('noise_seed',randi(100));
@@ -64,8 +70,8 @@ end
 
 %% Run simulation in parralel 
 for iter = 1:batch_size
-    attack_start_times      = 2*ones(n_meas,1);
-    attack_full_times       = attack_start_times +  10;
+    attack_start_times      = attack_start_injection*ones(n_meas,1);
+    attack_full_times       = attack_start_times +  100;
     attack_final_deviations = zeros(n_meas,1);
 
     attack_start_times(attack_indices)      = attack_data(1:n_attacked_nodes,iter);
@@ -79,8 +85,5 @@ end
 
 sim_out = parsim(sim_inp);
 
-%% prune the error simulation outputs
-
-
 %% calculate effectiveness and stealthiness
-[effect_index, stealth_index] = get_error_from_nominal(sim_out,yc_nominal,r_nominal);
+% [effect_index, stealth_index] = get_error_from_nominal(sim_out,yc_nominal,r_nominal);
