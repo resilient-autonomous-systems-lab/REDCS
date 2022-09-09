@@ -22,7 +22,7 @@ thresh_1 = thresholds(1);
 thresh_2 = thresholds(2);
 inp_size = gen_net.Layers(1, 1).InputSize;
 
-mini_batch_size = 5000;
+mini_batch_size = 1000;
 n_batch         = 100;
 n_samples       = n_batch*mini_batch_size;
 

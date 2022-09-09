@@ -7,11 +7,11 @@ close all
 Run_sim;
 
 %% global training parameters
-n_epoch         = 5;
+n_epoch         = 10;
 
 generate_generator_data_flag = true;
-n_random_sim_samples = 5000;  % Number of random attack dataset per epoch used to train descriminators
-n_generator_sim_sample = round(n_random_sim_samples);
+n_random_sim_samples = 10000;  % Number of random attack dataset per epoch used to train descriminators
+n_generator_sim_sample = round(n_random_sim_samples/2);
 
 %% Initialize Generator network
 alpha = 0.7;  % probability of success
@@ -28,10 +28,21 @@ out_size = 3*n_attacked_nodes;  % dimension of smallest Eucliden space containin
 try
     load_nets = load("trained_network");
     gen_net = load_nets.gen_net;
+    effect_net = load_nets.effect_net;
+    stealth_net = load_nets.stealth_net;
 catch
     activation_fcns_gen = ["relu","sigmoid","tanh","sigmoid"];
     n_neurons_gen = [50*inp_size,100*inp_size,50*inp_size,out_size];
-    gen_net = create_dl_network(inp_size,activation_fcns_gen,n_neurons_gen);
+    gen_net = create_dl_network(inp_size,activation_fcns_gen,n_neurons_gen); % stalth network
+
+    inp_size_dis = 3*n_attacked_nodes;
+    activation_fcns_effect = ["relu","relu","relu","linear"];
+    n_neurons_effect = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
+    effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
+
+    activation_fcns_stealth = ["relu","relu","relu","linear"];
+    n_neurons_stealth = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
+    stealth_net = create_dl_network(inp_size_dis,activation_fcns_stealth,n_neurons_stealth);  % Stealthiness network
 end
 
 
@@ -79,20 +90,20 @@ for i_epoch = 1:n_epoch
     effect_index = dlarray([effect_index_rand;effect_index_gen].','CB');
     stealth_index = dlarray([stealth_index_rand;stealth_index_gen].','CB');
     
-    save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
+%     save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
 
 
     %% Train Discriminator network
-    [effect_net,stealth_net] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch);
+    [effect_net,stealth_net] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch);
 
     %% Training Generator with adam
     gen_net = training_generator(i_epoch,gen_net,stealth_net,effect_net,alpha,thresholds,loss_curve_param_gen);
 
-    save('trained_network.mat','gen_net','stealth_net','effect_net','-v7.3');
+%     save('trained_network.mat','gen_net','stealth_net','effect_net','-v7.3');
 end
 
 %% Testing performance
-% save('trained_network.mat','gen_net','stealth_net','effect_net','-v7.3');
+save('trained_network.mat','gen_net','stealth_net','effect_net','-v7.3');
 [test_score_dis,test_score_sim,~,~,~,~] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,500,policy_param,true);
 disp("Testing score with discriminators = " + num2str(test_score_dis) + " ::: Target = " + num2str(alpha))
 disp("Testing score with model simualtion = " + num2str(test_score_sim) + " ::: Target = " + num2str(alpha))

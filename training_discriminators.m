@@ -1,4 +1,4 @@
-function [effect_net_trained,stealth_net_trained] = training_discriminators(n_attacked_nodes,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch)
+function [effect_net_trained,stealth_net_trained] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch)
 %% function [effect_net_trained,stealth_net_trained,effect_training_info,stealth_training_info] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index, maxEpochs)
 % train the two discriminator network (regression network) to learn the relationship from attack signal to effectiveness and stealthiness respectively
 % Inputs:
@@ -20,20 +20,20 @@ function [effect_net_trained,stealth_net_trained] = training_discriminators(n_at
 %
 
 %% load network
-try
-    load_nets = load("trained_network");
-    effect_net = load_nets.effect_net;
-    stealth_net = load_nets.stealth_net;
-catch
-    inp_size_dis = 3*n_attacked_nodes;
-    activation_fcns_effect = ["relu","relu","relu","linear"];
-    n_neurons_effect = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
-    effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
-
-    activation_fcns_stealth = ["relu","tanh","relu","linear"];
-    n_neurons_stealth = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
-    stealth_net = create_dl_network(inp_size_dis,activation_fcns_stealth,n_neurons_stealth);  % Stealthiness network
-end
+% try
+%     load_nets = load("trained_network");
+%     effect_net = load_nets.effect_net;
+%     stealth_net = load_nets.stealth_net;
+% catch
+%     inp_size_dis = 3*n_attacked_nodes;
+%     activation_fcns_effect = ["relu","relu","relu","linear"];
+%     n_neurons_effect = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
+%     effect_net = create_dl_network(inp_size_dis,activation_fcns_effect,n_neurons_effect); % Effectiveness network
+% 
+%     activation_fcns_stealth = ["relu","relu","relu","linear"];
+%     n_neurons_stealth = [50*inp_size_dis,100*inp_size_dis,50*inp_size_dis,1];
+%     stealth_net = create_dl_network(inp_size_dis,activation_fcns_stealth,n_neurons_stealth);  % Stealthiness network
+% end
 
 
 %% effect network
