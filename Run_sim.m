@@ -68,7 +68,7 @@ end
 % attack policy parameters
 attack_start_time_interval  = round([0.12 0.22]*t_sim_stop);
 attack_time_span_max_rate   = 0.5;
-attack_max = 50;
+attack_max = 100*rand;
 policy_param = {attack_start_time_interval, attack_time_span_max_rate, attack_max, t_sim_stop};
 
 % getting nominal values

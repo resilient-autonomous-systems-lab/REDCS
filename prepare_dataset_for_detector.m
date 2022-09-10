@@ -1,5 +1,6 @@
 %% prepare attack dataset for detector training
-clear 
+close all
+clear all
 clc
 
 %% nominal dataset
@@ -19,7 +20,7 @@ num = [4, 3, 2, 1];
 
 attack_dataset = [];
 for iter=1:4
-    for ii = 1:prod(num(1:iter))
+    for ii = 1:5
         delete attack_support.mat;
     
         attack_percentage = attack_percentage_list(iter);
@@ -50,7 +51,7 @@ end
 
 total_dataset = [attack_dataset; repmat(nominal_dataset,1000,1)];
 mix_idx = randperm(size(total_dataset,1),size(total_dataset,1));
-total_dataset = total_dataset(mix_idx);
+total_dataset = total_dataset(mix_idx,:);
 save('total_dataset.mat','total_dataset','-v7.3');
 
 
