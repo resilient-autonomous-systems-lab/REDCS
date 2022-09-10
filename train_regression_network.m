@@ -69,7 +69,7 @@ end
 
 function [gradients,states,loss] = model_loss(net,input,target_output)
 
-[output, states] = predict(net,input);
+[output, states] = forward(net,input);
 % loss = sum((output - target_output).^2) / mini_batch_size;
 loss = mse(output,target_output);
 

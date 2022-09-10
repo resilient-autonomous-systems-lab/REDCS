@@ -3,6 +3,7 @@ close all
 clear all
 clc
 
+detector_train_flag = 1;
 %% nominal dataset
 try 
     nominal_dataset = load(nominal_dataset.mat).nominal_dataset;

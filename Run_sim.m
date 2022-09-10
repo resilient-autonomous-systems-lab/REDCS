@@ -1,6 +1,9 @@
 % clear 
 % clc
 
+% detector_train_flag = 0;
+% attack_percentage = 1.0;
+
 %% Simulation parameters
 t_sim_stop = 1000;  % total simulation time per incidence
 
@@ -40,6 +43,18 @@ eta = 0.1; % maximum deviation from reference pipline mass flow rate
 %% Noise
 noise_seed = 23341;
 
+%% This file is resued for detector training and normal simulation
+try
+    detector_net = load("Detector.mat").detector_net;
+catch
+    if detector_train_flag > 0.5
+        pass;
+    else
+        disp("no existing detector_net, run train_detector.m first");
+        keyboard;
+    end
+end
+
 %% Attack parameters
 %  Attack is modeled as a scalar deviation from actual measured value
 %    - start_times: The time spot to begin attack injection
@@ -72,13 +87,19 @@ attack_max = 100*rand;
 policy_param = {attack_start_time_interval, attack_time_span_max_rate, attack_max, t_sim_stop};
 
 % getting nominal values
-model = 'sample_system';
+model = "sample_system";
 noise_trigger = 0;
 out = sim(model);
 
 
 yc_nominal = out.critical_measurement;
 ya = out.attacked_measurements; 
-% r_nominal  = out.residual;
+y = out.measurements;
+
+if detector_train_flag < 0.5
+    y_dlarray = dlarray(y.Data,"BC");
+    r_nominal  = double(extractdata(predict(detector_net,y_dlarray)));
+    r_nominal = timeseries(r_nominal.',y.Time);
+end
 
 
