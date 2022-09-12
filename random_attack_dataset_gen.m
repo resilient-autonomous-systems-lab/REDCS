@@ -1,4 +1,4 @@
-function [sim_obj,Z_attack_data,effect_index,stealth_index] = random_attack_dataset_gen(n_attacked_nodes,n_sim_samples,policy_param)
+function [sim_obj,Z_attack_data,effect_index,stealth_index] = random_attack_dataset_gen(n_attacked_nodes,attack_percentage,n_sim_samples,policy_param)
 %% function [sim_obj,Z_attack_data,effect_index,stealth_index] = random_attack_dataset_gen(generate_data_flag,n_attacked_nodes,n_sim_samples,t_sim_stop)
 % generate random attack dataset for training discriminators
 %
@@ -17,7 +17,8 @@ catch
 
     %% getting simulation object
     sim_obj = [];
-    [sim_obj, effect_index,stealth_index]  = get_simulation_object_sample_system(sim_obj,attack_data);
+    sim_obj  = get_simulation_object_sample_system(sim_obj,attack_data,attack_percentage);
+    [effect_index,stealth_index] = get_error_from_nominal(sim_obj);
 
     save('random_attack_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
 end

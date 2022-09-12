@@ -20,6 +20,7 @@ batch_size = size(attack_data,2);
 %*******************************************
 % REPLACE WITH CALL TO RELEVANT RUNFILE
 %*******************************************
+detector_train_flag = 0;
 Run_sim  
 
 

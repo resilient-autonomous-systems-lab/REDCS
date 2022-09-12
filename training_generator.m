@@ -43,7 +43,7 @@ trailingAvgSq = [];
 iteration = 0;
 
 %% input data
-Z_data    = 20*(0.5 - rand(inp_size,n_samples,"single"));   % uniformly random noise as input
+Z_data    = rand(inp_size,n_samples,"single");   % uniformly random noise as input
 Z_dlarray = dlarray(Z_data,"CB");                     % covert to dlarray
 % Z         = gpuArray(Z_dlarray);                      % use gpu
 
