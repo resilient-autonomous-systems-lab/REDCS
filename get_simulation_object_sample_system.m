@@ -1,4 +1,4 @@
-function [sim_out] = get_simulation_object_sample_system(sim_inp_in,attack_data,attack_percentage)
+function [sim_out,detection_start] = get_simulation_object_sample_system(sim_inp_in,attack_data,attack_percentage)
 % Returns an array of Simulink.SimulationInput object for parrallel
 % execution
 %
@@ -20,7 +20,6 @@ batch_size = size(attack_data,2);
 %*******************************************
 % REPLACE WITH CALL TO RELEVANT RUNFILE
 %*******************************************
-detector_train_flag = 0;
 Run_sim  
 
 

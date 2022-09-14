@@ -32,7 +32,7 @@ Z_input = dataset{1,1};
 Z_output = dataset{1,2};
 
 n_batch = 200;
-n_samples = round(n_batch*mini_batch_size);
+% n_samples = round(n_batch*mini_batch_size);
 % n_batch  = round(n_samples/mini_batch_size);
 
 %% plot parameters
@@ -62,10 +62,16 @@ for ind = 1:n_batch
     % Display the training progress.
     figure(loss_fig_dis)
     D = duration(0,0,toc(start),Format="hh:mm:ss");
-    addpoints(disLossTrain,iteration+(i_epoch-1)*n_samples,double(loss))
+    addpoints(disLossTrain,(i_epoch-1)*n_batch+iteration,double(loss))
     title(figure_name + "epoch: " + 1 + ", Elapsed: " + string(D))
     drawnow
 end
+% % Display the training progress.
+% figure(loss_fig_dis)
+% D = duration(0,0,toc(start),Format="hh:mm:ss");
+% addpoints(disLossTrain,i_epoch,double(loss))
+% title(figure_name + "epoch: " + 1 + ", Elapsed: " + string(D))
+% drawnow
 
 function [gradients,states,loss] = model_loss(net,input,target_output)
 

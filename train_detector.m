@@ -4,22 +4,22 @@ clc
 
 detector_train_flag = 1;
 attack_percentage = 1.0;
-Run_sim;
+n_meas = 4;
 %% initialize a dl network
 inp_size = n_meas;
-out_size = n_meas;
-try
+out_size = 1;
+try    
     detector_net = load("Detector.mat").detector_net;
 catch
-    activation_fcns = ["relu","relu","relu","sigmoid"];
-    n_neurons = [50*inp_size,100*inp_size,50*inp_size,out_size];
+    activation_fcns = ["relu","sigmoid"];
+    n_neurons = [10*inp_size,out_size];
     detector_net = create_dl_network(inp_size,activation_fcns,n_neurons);  % detector network
 end
 
 %% Hyperparameters
-n_epoch = 100;
+n_epoch = 50;
 mini_batch_size = 5000;
-n_batch = 200;
+n_batch = 10;
 n_samples = round(n_batch*mini_batch_size);
 
 % initialize Adam optimizer

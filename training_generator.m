@@ -22,7 +22,7 @@ thresh_1 = thresholds(1);
 thresh_2 = thresholds(2);
 inp_size = gen_net.Layers(1, 1).InputSize;
 
-mini_batch_size = 5000;
+mini_batch_size = 1000;
 n_batch         = 100;
 n_samples       = n_batch*mini_batch_size;
 
@@ -80,15 +80,13 @@ for ind = 1:mini_batch_size:n_samples
     [gen_net,trailingAvg,trailingAvgSq] = adamupdate(gen_net, gradients, ...
         trailingAvg, trailingAvgSq, iteration, ...
         learnRate, gradientDecayFactor, squaredGradientDecayFactor);
-
-    % Display the training progress.
-    figure(loss_fig_gen)
-    D = duration(0,0,toc(start),Format="hh:mm:ss");
-    addpoints(genLossTrain,iteration+(i_epoch-1)*n_samples,double(loss))
-    title("Generator Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
-    drawnow
-
 end
+% Display the training progress.
+figure(loss_fig_gen)
+D = duration(0,0,toc(start),Format="hh:mm:ss");
+addpoints(genLossTrain,i_epoch,double(loss))
+title("Generator Network,  " + "epoch: " + 1 + ", Elapsed: " + string(D))
+drawnow
 
 % Post-trained network performace
 out = double(forward(gen_net,Z_dlarray));
@@ -112,6 +110,7 @@ function [gradients,states,loss] = model_loss(net,Z,beta_n,stealth_net,effect_ne
 [g_theta, states] = forward(net,Z);
 loss    = relu((sum(exp(f1(stealth_net,g_theta,thresh_1))) - beta_n)) + ...
            relu((sum(exp(f2(effect_net,g_theta,thresh_2))) - beta_n));
+% loss = relu(mean(f1(stealth_net,g_theta,thresh_1))) + relu(mean(f2(effect_net,g_theta,thresh_2))/10);
 
 gradients = dlgradient(loss,net.Learnables);
 
@@ -121,4 +120,4 @@ out =  y - thresh_1;  % inidicator function
 
 function out = f2(net,x,thresh_2)
 y = forward(net,x);
-out =  thresh_2 - y;  % inidicator function
+out =  (thresh_2 - y)/10;  % inidicator function
