@@ -1,22 +1,30 @@
 # REDCS
 
 ## System Setup
-![image](https://user-images.githubusercontent.com/36635562/189228816-7d4a9958-572a-47a3-b1d5-d6b247a56d4d.png)
+![image](https://user-images.githubusercontent.com/36635562/190458704-a44b6a77-33e2-4c42-9559-9f7c2713dcf1.png)
+
 
 ## Nominal Control perfromance
-- qr = 10
-- gamma = 0.1
-
+![image](https://user-images.githubusercontent.com/36635562/190459119-e5c24636-c9d1-4493-b1ff-0e59f5167c2f.png)
 The nominal result shows q1, q4 are both in side 9~11
-![image](https://user-images.githubusercontent.com/36635562/189228878-6ed44c0b-05ac-473e-998d-39dad19130b9.png)
 
-## Generator training performance
-- generator probability loss function: relu(sum(e^f1)-eta) + relu(sum(e^f2)-eta), where f1 = stealth - stealth_thresh, f2 = effect_thresh - effect 
 
-![image](https://user-images.githubusercontent.com/72170474/190227950-486f2214-cc93-43f3-9246-c0550063ac15.png)
+## Attack Policy
+- Ramp attack
+![image](https://user-images.githubusercontent.com/36635562/190459319-239ef50e-7b15-45e9-89bc-4af978ddc3bd.png)
 
-- generator indicator loss function: relu(mean(f1)) + relu(mean(f2))
 
-![image](https://user-images.githubusercontent.com/72170474/190228640-ff6e60de-7d63-4628-8adf-7d6a15b9701a.png)
+## Generator Training
+![image](https://user-images.githubusercontent.com/36635562/190459391-037e8885-4b3e-4cdb-acca-a25bc9de0278.png)
+![image](https://user-images.githubusercontent.com/36635562/190459426-971ae624-8510-4df5-9e3a-871589ced1c4.png)
 
-![image](https://user-images.githubusercontent.com/72170474/190228728-2b21dd22-8208-48a2-8a90-7fa69c406cb5.png)
+
+
+## Results
+### 2 attacks
+![image](https://user-images.githubusercontent.com/36635562/190459541-c4450e33-df57-4804-8ade-b0f33ed30f5d.png)
+![image](https://user-images.githubusercontent.com/36635562/190459652-4dd393d0-8ea9-435e-90e9-103a5c608af9.png)
+
+### 4 attacks
+![image](https://user-images.githubusercontent.com/36635562/190459722-8092347c-bb8d-4a99-a94a-8677a73378dc.png)
+![image](https://user-images.githubusercontent.com/36635562/190459856-061f95b2-e9ff-482d-888d-516f32a8cb0d.png)
