@@ -1,14 +1,3 @@
-Testing score with discriminators = 0.914 ::: Target = 0.8
-Testing score with model simualtion = 0.896 ::: Target = 0.8
+![image](https://user-images.githubusercontent.com/36635562/190458518-acf0ea9d-7970-4951-893a-a8ad5bbf222d.png)
 
-### example test result
-- effectiveness = 0.5335
-- Detection probability = 0.1772
-- Attack policy: 
-  1. 181.791568994522
-  2. 163.589711189270
-  3. 134.027948113937
-  4. 326.770623656769
-  5. 0.00577997816435527
-  6. 3.55959385633469
-- Attack indics: [2,3]
+![image](https://user-images.githubusercontent.com/36635562/190458567-41e0b224-e41d-47fa-a5bd-1e98bbafac5c.png)
