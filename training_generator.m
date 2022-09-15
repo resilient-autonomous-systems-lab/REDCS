@@ -108,9 +108,9 @@ hold on, plot(y_effect,'r.')
 function [gradients,states,loss] = model_loss(net,Z,beta_n,stealth_net,effect_net,thresh_1,thresh_2)
 
 [g_theta, states] = forward(net,Z);
-loss    = relu((sum(exp(f1(stealth_net,g_theta,thresh_1))) - beta_n)) + ...
-           relu((sum(exp(f2(effect_net,g_theta,thresh_2))) - beta_n));
-% loss = relu(mean(f1(stealth_net,g_theta,thresh_1))) + relu(mean(f2(effect_net,g_theta,thresh_2))/10);
+% loss    = relu((sum(exp(f1(stealth_net,g_theta,thresh_1))) - beta_n)) + ...
+%            relu((sum(exp(f2(effect_net,g_theta,thresh_2))) - beta_n));
+loss = relu(mean(f1(stealth_net,g_theta,thresh_1))) + relu(mean(f2(effect_net,g_theta,thresh_2))/10);
 
 gradients = dlgradient(loss,net.Learnables);
 

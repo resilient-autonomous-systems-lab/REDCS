@@ -3,7 +3,7 @@ clc
 clear
 close all
 
-attack_percentage = 1.0;
+attack_percentage = 0.5;
 detector_train_flag = 0;
 %% load system base parameters
 Run_sim;
