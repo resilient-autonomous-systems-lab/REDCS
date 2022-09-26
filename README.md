@@ -1,5 +1,6 @@
 # REDCS
 This branch is for concentric circle example
+![concentric_circle_scheme](https://user-images.githubusercontent.com/36635562/192328896-2d217c30-3885-4b84-b76f-f409cf7ef121.png)
 
 ## Train generator with exact function
 run `generator_example_concentric_circles_discriminators.m`
@@ -14,5 +15,4 @@ Relu, Sigmoid, Tanh
 - Discriminator:
 Relu, Relu, Linear
 
-![image](https://user-images.githubusercontent.com/36635562/187001291-c404329d-e125-40b5-aea8-c85053493275.png)
-
+![concentric_circle_result](https://user-images.githubusercontent.com/36635562/192328995-78da5dc7-08d8-493a-87b6-44e1ae9e811a.png)
