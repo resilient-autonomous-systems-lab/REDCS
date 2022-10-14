@@ -3,13 +3,13 @@ clc
 clear
 close all
 
-attack_percentage = 0.5;
+attack_percentage = 1;
 detector_train_flag = 0;
 %% load system base parameters
 Run_sim;
 
 %% global training parameters
-n_epoch         = 5;
+n_epoch         = 3;
 
 generate_generator_data_flag = true;
 n_random_sim_samples = 2000;  % Number of random attack dataset per epoch used to train descriminators

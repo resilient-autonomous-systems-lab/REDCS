@@ -84,26 +84,11 @@ out = sim(model);
 
 
 yc_nominal = out.critical_measurement;
-ya = out.attacked_measurements; 
-y = out.measurements;
+ya_nominal = out.attacked_measurements; 
+y_nominal = out.measurements;
 
-y_dlarray = dlarray(y.Data,"BC");
+y_dlarray = dlarray(y_nominal.Data,"BC");
 r_nominal  = double(extractdata(predict(detector_net,y_dlarray)));
-r_nominal = timeseries(r_nominal.',y.Time);
+r_nominal = timeseries(r_nominal.',y_nominal.Time);
 
 
-% figure
-% subplot(4,1,1);
-% title('q_1');
-% plot(y.Time(y.Time>100),y.Data(y.Time>100,1));
-% ylim([9,11]);
-% subplot(4,1,2);
-% title('q_2');
-% plot(y.Time(y.Time>100),y.Data(y.Time>100,2));
-% subplot(4,1,3);
-% title('q_3');
-% plot(y.Time(y.Time>100),y.Data(y.Time>100,3));
-% subplot(4,1,4);
-% title('q_4');
-% plot(y.Time(y.Time>100),y.Data(y.Time>100,4));
-% ylim([9,11]);

@@ -19,8 +19,7 @@ function [test_score_dis,test_score_sim,y_stealth,y_effect,stealth_index, effect
 %        stealth_index        : [n_test-by-1] stealth index of test samples (with model simulation)
 %        effect_index         : [n_test-by-1] effect index of test samples (with model simulation) 
 %
-% Author: Olugbenga Moses Anubi, Florida state university
-%         Yu Zheng, Florida state university
+% Author: Yu Zheng, Florida state university
 % 08/19/2022
 
 %% Testing performance with repect to the trained discriminators
