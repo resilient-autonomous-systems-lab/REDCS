@@ -9,7 +9,7 @@ detector_train_flag = 0;
 Run_sim;
 
 %% global training parameters
-n_epoch         = 3;
+n_epoch         = 5;
 
 generate_generator_data_flag = true;
 n_random_sim_samples = 2000;  % Number of random attack dataset per epoch used to train descriminators
@@ -20,7 +20,7 @@ alpha = 0.8;  % probability of success
 % beta  = 1 - alpha;
 
 thresh_1 = 0.5;  % threshold for stealthiness
-thresh_2 = 0.1;  % threshold for effectivness
+thresh_2 = 5;  % threshold for effectivness
 thresholds = [thresh_1,thresh_2];
 
 
@@ -93,7 +93,6 @@ for i_epoch = 1:n_epoch
     stealth_index = dlarray([stealth_index_rand;stealth_index_gen].','CB');
     
 %     save('sim_sample_system_data','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
-
 
     %% Train Discriminator network
     [effect_net,stealth_net] = training_discriminators(effect_net,stealth_net,Z_attack_data,effect_index,stealth_index,loss_curve_param_dis1,loss_curve_param_dis2,i_epoch);
