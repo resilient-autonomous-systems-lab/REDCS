@@ -35,7 +35,7 @@ Ki = 20;
 Kd = 20;
 
 %% supervised controller
-q_ref = 10;  % reference pipline mass flow rate
+q_ref = 1;  % reference pipline mass flow rate
 eta = 0.1; % maximum deviation from reference pipline mass flow rate
 
 
@@ -68,7 +68,7 @@ try % make sure the attack support not change during a training process
     attack_indices = load('attack_support.mat').attack_indices;
 catch
     attack_indices = sort(randperm(n_meas,n_attacked_nodes));  % inidices of nodes to attack;
-    save attack_support.mat attack_indices
+%     save attack_support.mat attack_indices
 end
 
 % attack policy parameters

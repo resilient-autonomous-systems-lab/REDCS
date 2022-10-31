@@ -29,7 +29,7 @@ thresh_2 = thresholds(2);
 inp_size = gen_net.Layers(1, 1).InputSize;
 
 
-Z_test        = 100*(0.5 - rand(inp_size,n_test,"single"));   % uniformly random noise as input
+Z_test        = rand(inp_size,n_test,"single");   % uniformly random noise as input
 Z_tet_dlarray = dlarray(Z_test,"CB");                         % covert to dlarray
 
 test_out = double(forward(gen_net,Z_tet_dlarray));
