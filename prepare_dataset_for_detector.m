@@ -21,8 +21,8 @@ attack_percentage_list = [1.0, 0.75, 0.5, 0.25];
 num = [4, 3, 2, 1];
 
 attack_dataset = [];
-for iter=1:1
-    for ii = 1:1
+for iter=1:length(attack_percentage_list)
+    for ii = 1:5
         delete attack_support.mat;
     
         attack_percentage = attack_percentage_list(iter);

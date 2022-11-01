@@ -68,7 +68,7 @@ try % make sure the attack support not change during a training process
     attack_indices = load('attack_support.mat').attack_indices;
 catch
     attack_indices = sort(randperm(n_meas,n_attacked_nodes));  % inidices of nodes to attack;
-%     save attack_support.mat attack_indices
+    save attack_support.mat attack_indices
 end
 
 % attack policy parameters
@@ -90,5 +90,7 @@ y_nominal = out.measurements;
 y_dlarray = dlarray(y_nominal.Data,"BC");
 r_nominal  = double(extractdata(predict(detector_net,y_dlarray)));
 r_nominal = timeseries(r_nominal.',y_nominal.Time);
+
+% save('nominal_index.mat','yc_nominal','r_nominal','-v7.3');
 
 

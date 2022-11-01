@@ -22,8 +22,8 @@ thresh_1 = thresholds(1);
 thresh_2 = thresholds(2);
 inp_size = gen_net.Layers(1, 1).InputSize;
 
-mini_batch_size = 1000;
-n_batch         = 100;
+mini_batch_size = 5000;
+n_batch         = 5;
 n_samples       = n_batch*mini_batch_size;
 
 loss_fig_gen = loss_curve_param{1,1};
@@ -58,30 +58,23 @@ perf_fig = figure;
 y_stealth = predict(stealth_net,out);
 y_effect  = predict(effect_net,out);
 subplot(121)
-plot(y_stealth,'b.'), hold on, plot(ones(n_samples,1)*thresh_1,'k')
+plot(y_stealth,'b.');
 subplot(122)
-plot(y_effect,'b.'), hold on, plot(ones(n_samples,1)*thresh_2,'k')
+plot(y_effect,'b.');
 sgtitle("Training Performance")
+set(gca,"FontSize",12)
+
 
 %% Loop over one epoch of mini-batches
 for ind = 1:mini_batch_size:n_samples
     iteration = iteration +1;
 
-%     % Pretrained network performace
-%     out = double(predict(gen_net,Z_dlarray));
-%     f1_out = f1(stealth_net,out,thresh_1);
-%     f2_out = f2(effect_net, out,thresh_2);
-%     pre_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
-%     disp("pre-trained score = " + num2str(pre_score) + " ::: Target = " + num2str(alpha))
-%     
-%     figure;
-%     y_stealth = predict(stealth_net,out);
-%     y_effect  = predict(effect_net,out);
-%     subplot(121)
-%     plot(y_stealth,'b.'), hold on, plot(ones(n_samples,1)*thresh_1,'k')
-%     subplot(122)
-%     plot(y_effect,'b.'), hold on, plot(ones(n_samples,1)*thresh_2,'k')
-%     sgtitle("Training Performance")
+    %% save batch results (pre-training)
+    out = double(predict(gen_net,Z_dlarray));
+    y_stealth = predict(stealth_net,out);
+    y_effect  = predict(effect_net,out);
+    batch_file = "training_performance/"+ num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/PreTraining_Epoch" + num2str(i_epoch) + "Batch"+ num2str(iteration)+".mat";
+    save(batch_file,'y_stealth','y_effect','-v7.3')
 
     % Getting mini-batch input data
     idx = ind:min(ind+mini_batch_size-1,n_samples);
@@ -97,20 +90,12 @@ for ind = 1:mini_batch_size:n_samples
         trailingAvg, trailingAvgSq, iteration, ...
         learnRate, gradientDecayFactor, squaredGradientDecayFactor);
 
-%     Post-trained network performace
-%     out = double(forward(gen_net,Z_dlarray));
-%     
-%     f1_out = f1(stealth_net,out,thresh_1);
-%     f2_out = f2(effect_net,out,thresh_2);
-%     post_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
-%     disp("post-trained score = " + num2str(post_score) + " ::: Target = " + num2str(alpha))
-%     
-%     y_stealth = forward(stealth_net,out);
-%     y_effect  = forward(effect_net,out);
-%     subplot(121)
-%     hold on, plot(y_stealth,'r.')
-%     subplot(122)
-%     hold on, plot(y_effect,'r.')
+    %% save batch results (post-training)
+    out = double(predict(gen_net,Z_dlarray));
+    y_stealth = predict(stealth_net,out);
+    y_effect  = predict(effect_net,out);
+    batch_file = "training_performance/"+ num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/PostTraining_Epoch" + num2str(i_epoch) + "Batch"+ num2str(iteration)+".mat";
+    save(batch_file,'y_stealth','y_effect','-v7.3')
 end
 % Display the training progress.
 figure(loss_fig_gen)
@@ -128,12 +113,17 @@ post_score = sum((f1_out<=0) & (f2_out<=0))/n_samples;
 disp("post-trained score = " + num2str(post_score) + " ::: Target = " + num2str(alpha))
 
 figure(perf_fig),
-y_stealth = forward(stealth_net,out);
-y_effect  = forward(effect_net,out);
+y_stealth = predict(stealth_net,out);
+y_effect  = predict(effect_net,out);
 subplot(121)
-hold on, plot(y_stealth,'r.')
+hold on, plot(y_stealth,'r.');
+hold on, plot(ones(n_samples,1)*thresh_1,'k+');
 subplot(122)
 hold on, plot(y_effect,'r.')
+hold on, plot(ones(n_samples,1)*thresh_2,'k+');
+set(gca,"FontSize",12)
+figure_dir = "training_performance/"+ num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/Gen_Epoch"+num2str(i_epoch)+".fig";
+savefig(figure_dir)
 
 
 function [gradients,states,loss] = model_loss(net,Z,beta_n,stealth_net,effect_net,thresh_1,thresh_2)

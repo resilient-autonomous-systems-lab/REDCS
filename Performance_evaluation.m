@@ -47,14 +47,19 @@ if plot_flag
     figure,
     subplot(121)
     hold on, plot(y_stealth,'.')
-    hold on, plot(thresh_1*ones(1,n_test))
+    hold on, plot(thresh_1*ones(1,n_test),'+')
     title("Stealthiness")
+    set(gca,'FontSize',12)
     subplot(122)
     hold on, plot(y_effect,'.')
-    hold on, plot(thresh_2*ones(1,n_test))
+    hold on, plot(thresh_2*ones(1,n_test),'+')
     title("Effectiveness")
+    set(gca,'FontSize',12)
     
     sgtitle("Testing Performance with discriminators")
+    
+    dir_test1 = "test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/test_result_with_dis.fig";
+    save(dir_test1)
 end
 
 %% Testing performance with repect to the model simulation
@@ -66,10 +71,20 @@ sim_obj = [];
 [sim_obj,detection_start]  = get_simulation_object_sample_system(sim_obj,attack_data,attack_percentage);
 [effect_index,stealth_index] = get_error_from_nominal(sim_obj,detection_start);
 
+
 f1_out = stealth_index - thresh_1;
 f2_out = thresh_2 - effect_index;
 
 test_score_sim = sum((f1_out<=0) & (f2_out<=0))/n_test;
+
+%% save testing data
+dir_dis = "test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/test_result_with_dis.mat";
+dir_mdl = "test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/test_result_with_mdl.mat";
+dir_spt = "../test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/attack_support.mat";
+save(dir_dis,'y_effect','y_stealth','-v7.3');
+save(dir_mdl,'effect_index','stealth_index','-v7.3');
+save(dir_spt,'attack_indices','-v7.3');
+
 
 if plot_flag
     save('test_result','sim_obj','effect_index','stealth_index','Z_attack_data','-v7.3');
@@ -79,10 +94,15 @@ if plot_flag
     hold on, plot(stealth_index,'.')
     hold on, plot(thresh_1*ones(1,n_test))
     title("Stealthiness")
+    set(gca,'FontSize',12)
     subplot(122)
     hold on, plot(effect_index,'.')
     hold on, plot(thresh_2*ones(1,n_test))
     title("Effectiveness")
+    set(gca,'FontSize',12)
     
     sgtitle("Testing Performance with model simulation")
+
+    dir_test2 = "test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/test_result_with_mdl.fig";
+    save(dir_test2)
 end

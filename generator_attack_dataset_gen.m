@@ -16,7 +16,8 @@ if generate_data_flag == true
     [sim_obj,detection_start]  = get_simulation_object_sample_system(sim_obj,attack_data,attack_percentage);
     [effect_index,stealth_index] = get_error_from_nominal(sim_obj,detection_start);
 
-    save('generator_attack_data','effect_index','stealth_index','Z_attack_data','-v7.3');
+%     save('generator_attack_data','effect_index','stealth_index','Z_attack_data','-v7.3');
+    
 
 else
     local_var_gen = load('generator_attack_data.mat');

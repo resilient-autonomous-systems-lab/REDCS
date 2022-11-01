@@ -3,7 +3,7 @@ clc
 clear
 close all
 
-attack_percentage = 1.0;
+attack_percentage = 1;
 detector_train_flag = 0;
 %% load system base parameters
 Run_sim;
@@ -20,7 +20,7 @@ alpha = 0.8;  % probability of success
 % beta  = 1 - alpha;
 
 thresh_1 = 0.5;  % threshold for stealthiness
-thresh_2 = 0.5;  % threshold for effectivness
+thresh_2 = 0.15;  % threshold for effectivness
 thresholds = [thresh_1,thresh_2];
 
 
@@ -63,12 +63,14 @@ dis1LossTrain = animatedline(Color=C(2,:));
 ylim([0 inf])
 xlabel("Iteration")
 ylabel("Loss")
+title('Effect_net')
 grid on
 
 loss_fig_dis2 = figure;
 dis2LossTrain = animatedline(Color=C(2,:));
 ylim([0 inf])
 xlabel("Iteration")
+title('stealth_net')
 ylabel("Loss")
 grid on
 
@@ -79,12 +81,16 @@ loss_curve_param_dis2 = {loss_fig_dis2,dis2LossTrain,start};
 
  %%% random attack dataset 
 [Z_attack_data_rand,effect_index_rand,stealth_index_rand] = random_attack_dataset_gen(n_attacked_nodes,attack_percentage,n_random_sim_samples,policy_param);
+cache_dir_rand = "training_dataset/"+ num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/random_attack_data.mat" ;
+save(cache_dir_rand, 'effect_index_rand','stealth_index_rand','Z_attack_data_rand','-v7.3');
 
 %% Training
 for i_epoch = 1:n_epoch
     %% prepare attack dataset for discriminator training
     %%% generator attack dataset
-    [Z_attack_data_gen,effect_index_gen,stealth_index_gen] = generator_attack_dataset_gen(gen_net,generate_generator_data_flag,inp_size,attack_percentage,n_generator_sim_sample,policy_param);
+    [Z_attack_data_gen,effect_index_gen,stealth_index_gen] = generator_attack_dataset_gen(gen_net,generate_generator_data_flag,inp_size,attack_percentage,n_generator_sim_sample,policy_param,i_epoch);
+    cache_dir_gen = "training_dataset/"+ num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/generator_attack_data_epoch" + num2str(i_epoch) +".mat";
+    save(cache_dir_gen, 'effect_index_gen','stealth_index_gen','Z_attack_data_gen','-v7.3');
 
     %%% compose training dataset for discriminator
 %     sim_obj = [sim_obj_rand;sim_obj_gen];
@@ -102,9 +108,21 @@ for i_epoch = 1:n_epoch
 
 end
 
+%% save discriminators' trainig loss curve
+figure(loss_fig_dis1);
+dir_dis1 = "training_performance/"+ num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/Dis1_loss_curve.fig";
+savefig(dir_dis1)
+figure(loss_fig_dis2);
+dir_dis2 = "training_performance/"+ num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/Dis2_loss_curve.fig";
+savefig(dir_dis2)
+
 %% Testing performance
-save('trained_network.mat','gen_net','stealth_net','effect_net','-v7.3');
-[test_score_dis,test_score_sim,~,~,~,~] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,500,attack_percentage,policy_param,true);
+dir_net = "test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/trained_network.mat";
+save(dir_net,'gen_net','stealth_net','effect_net','-v7.3');
+
+tot_test = 6000;
+n_test = round(tot_test/nchoosek(n_meas,n_attacked_nodes));
+[test_score_dis,test_score_sim,~,~,~,~] = Performance_evaluation(gen_net,stealth_net,effect_net,thresholds,n_test,attack_percentage,policy_param,true);
 disp("Testing score with discriminators = " + num2str(test_score_dis) + " ::: Target = " + num2str(alpha))
 disp("Testing score with model simualtion = " + num2str(test_score_sim) + " ::: Target = " + num2str(alpha))
 
