@@ -42,9 +42,6 @@ eta = 0.1; % maximum deviation from reference pipline mass flow rate
 %% Noise
 noise_seed = 23341;
 
-%% This file is resued for detector training and normal simulation
-detector_net = load("Detector.mat").detector_net;
-
 
 %% Attack parameters
 %  Attack is modeled as a scalar deviation from actual measured value
@@ -87,10 +84,16 @@ yc_nominal = out.critical_measurement;
 ya_nominal = out.attacked_measurements; 
 y_nominal = out.measurements;
 
-y_dlarray = dlarray(y_nominal.Data,"BC");
-r_nominal  = double(extractdata(predict(detector_net,y_dlarray)));
-r_nominal = timeseries(r_nominal.',y_nominal.Time);
+if detector_train_flag < 0.5
+    y_dlarray = dlarray(y_nominal.Data,"BC");
 
-% save('nominal_index.mat','yc_nominal','r_nominal','-v7.3');
+    detector_net = load("Detector.mat").detector_net;
+    
+    r_nominal  = double(extractdata(predict(detector_net,y_dlarray)));
+    r_nominal = timeseries(r_nominal.',y_nominal.Time);
+
+    % save('nominal_index.mat','yc_nominal','r_nominal','-v7.3');
+end
+
 
 

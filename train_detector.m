@@ -18,7 +18,7 @@ end
 
 %% Hyperparameters
 n_epoch = 50;
-mini_batch_size = 5000;
+mini_batch_size = 1000;
 n_batch = 10;
 n_samples = round(n_batch*mini_batch_size);
 
@@ -37,8 +37,11 @@ catch
     disp("no existing training dataset, run prepare_dataset_for_detector.m first");
     keyboard;
 end
-Z_input = total_dataset(:,1:n_meas);
-Z_output = total_dataset(:,n_meas+1:end);
+Z_input = total_dataset(1:0.9*size(total_dataset,1),1:n_meas);
+Z_output = total_dataset(1:0.9*size(total_dataset,1),n_meas+1:end);
+
+test_input = total_dataset(0.9*size(total_dataset,1)+1:end,1:n_meas);
+test_output = total_dataset(0.9*size(total_dataset,1)+1:end,n_meas+1:end);
 
 %% loss curve Plot routine
 loss_fig = figure;
@@ -83,6 +86,12 @@ for iepoch = 1:n_epoch
 end
 
 save('Detector.mat','detector_net','-v7.3');
+
+%% testing
+pred_out = extractdata(predict(detector_net,dlarray(test_input,"BC")));
+detection_out = (pred_out>=0.5);
+score = 1 - sum(abs((detection_out.' - test_output)))/(0.1*size(total_dataset,1));
+disp("Testing score is: "+num2str(score));
 
 
 function [gradients, state, loss] = model_loss(net,input,target_output)

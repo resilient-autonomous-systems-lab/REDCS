@@ -68,7 +68,7 @@ attack_data = ramp_attack_policy(policy_param,Z_attack_data);
 
 sim_obj = [];
 
-[sim_obj,detection_start]  = get_simulation_object_sample_system(sim_obj,attack_data,attack_percentage);
+[sim_obj,detection_start]  = get_simulation_object_sample_system(sim_obj,attack_data,attack_percentage,0);
 [effect_index,stealth_index] = get_error_from_nominal(sim_obj,detection_start);
 
 

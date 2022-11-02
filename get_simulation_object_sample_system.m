@@ -1,4 +1,4 @@
-function [sim_out,detection_start] = get_simulation_object_sample_system(sim_inp_in,attack_data,attack_percentage)
+function [sim_out,detection_start] = get_simulation_object_sample_system(sim_inp_in,attack_data,attack_percentage,detector_train_flag)
 % Returns an array of Simulink.SimulationInput object for parrallel
 % execution
 %
