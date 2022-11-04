@@ -17,7 +17,7 @@ catch
 end
 
 %% Hyperparameters
-n_epoch = 50;
+n_epoch = 500;
 mini_batch_size = 1000;
 n_batch = 10;
 n_samples = round(n_batch*mini_batch_size);

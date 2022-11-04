@@ -10,7 +10,7 @@ try
 catch
     attack_percentage = 1.0;
     Run_sim;
-    y = reshape(ya_nominal.Data,[size(ya_nominal.Data,3),size(ya_nominal.Data,1)]);
+    y = reshape(ya_nominal.Data,[size(ya_nominal.Data,2),size(ya_nominal.Data,3)]).';
     y = y(ya_nominal.Time>detection_start,:);
     nominal_dataset = [y,zeros(size(y,1),1)];
     save nominal_dataset.mat nominal_dataset
@@ -20,6 +20,7 @@ end
 attack_percentage_list = [1.0, 0.75, 0.5, 0.25];
 num = [4, 3, 2, 1];
 n_dataset_per_percentage = 1;
+n_batch = 100;
 
 attack_dataset = [];
 for iter=1:length(attack_percentage_list)
@@ -32,21 +33,25 @@ for iter=1:length(attack_percentage_list)
         Run_sim;
     
         %% Attack data
-        Z_attack_data    = rand(3*n_attacked_nodes,50);
+        Z_attack_data    = rand(3*n_attacked_nodes,n_batch);
         attack_data = ramp_attack_policy(policy_param,Z_attack_data);
     
         %% getting simulation object
         sim_obj = [];
         [sim_obj]  = get_simulation_object_sample_system(sim_obj,attack_data,attack_percentage,detector_train_flag);
+
     
-        %% append dataset
-        miniBatchSize = length(sim_obj);
-        
-        for iter1 = 1:miniBatchSize
+        %% label and append dataset     
+        for iter1 = 1:n_batch
             ya = sim_obj(iter1).attacked_measurements;
-            y = reshape(ya.Data,[size(ya.Data,3),size(ya.Data,1)]);
+            y = reshape(ya.Data,[size(ya.Data,2),size(ya.Data,3)]).';
             y = y(ya.Time > detection_start,:);
-            attack_dataset_batch = [y,ones(size(y,1),1)];
+            q1_dif = abs(y(:,1) - q_ref)/abs(q_ref);
+            qm_dif = abs(y(:,1) + y(:,2) - q_ref)/abs(q_ref);
+            q4_dif = abs(y(:,4) - q_ref)/abs(q_ref);
+
+            label = ((q1_dif > eta+0.2) | (qm_dif > eta+0.2) | (q4_dif > eta+0.2));
+            attack_dataset_batch = [y,label];
             attack_dataset = [attack_dataset; attack_dataset_batch];
         end
     end
