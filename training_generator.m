@@ -30,6 +30,8 @@ loss_fig_gen = loss_curve_param{1,1};
 genLossTrain = loss_curve_param{1,2};
 start = loss_curve_param{1,3};
 
+attack_indices = load("attack_support.mat").attack_indices;
+
 %% parameters for Adam optimizer
 learnRate = 0.0002;
 gradientDecayFactor = 0.5;

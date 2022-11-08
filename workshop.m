@@ -20,7 +20,7 @@ alpha = 0.8;  % probability of success
 % beta  = 1 - alpha;
 
 thresh_1 = 0.5;  % threshold for stealthiness
-thresh_2 = 0.15;  % threshold for effectivness
+thresh_2 = 1.5;  % threshold for effectivness
 thresholds = [thresh_1,thresh_2];
 
 
@@ -63,14 +63,14 @@ dis1LossTrain = animatedline(Color=C(2,:));
 ylim([0 inf])
 xlabel("Iteration")
 ylabel("Loss")
-title('Effect_net')
+title('Effect net')
 grid on
 
 loss_fig_dis2 = figure;
 dis2LossTrain = animatedline(Color=C(2,:));
 ylim([0 inf])
 xlabel("Iteration")
-title('stealth_net')
+title('Stealth net')
 ylabel("Loss")
 grid on
 
@@ -88,9 +88,16 @@ save(cache_dir_rand, 'effect_index_rand','stealth_index_rand','Z_attack_data_ran
 for i_epoch = 1:n_epoch
     %% prepare attack dataset for discriminator training
     %%% generator attack dataset
-    [Z_attack_data_gen,effect_index_gen,stealth_index_gen] = generator_attack_dataset_gen(gen_net,generate_generator_data_flag,inp_size,attack_percentage,n_generator_sim_sample,policy_param,i_epoch);
     cache_dir_gen = "training_dataset/"+ num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/generator_attack_data_epoch" + num2str(i_epoch) +".mat";
-    save(cache_dir_gen, 'effect_index_gen','stealth_index_gen','Z_attack_data_gen','-v7.3');
+    try
+        local_var_gen = load(cache_dir_gen);
+        Z_attack_data_gen = local_var_gen.Z_attack_data_gen;
+        effect_index_gen  = local_var_gen.effect_index_gen;
+        stealth_index_gen = local_var_gen.stealth_index_gen;
+    catch
+        [Z_attack_data_gen,effect_index_gen,stealth_index_gen] = generator_attack_dataset_gen(gen_net,generate_generator_data_flag,inp_size,attack_percentage,n_generator_sim_sample,policy_param);
+        save(cache_dir_gen, 'effect_index_gen','stealth_index_gen','Z_attack_data_gen','-v7.3');
+    end
 
     %%% compose training dataset for discriminator
 %     sim_obj = [sim_obj_rand;sim_obj_gen];

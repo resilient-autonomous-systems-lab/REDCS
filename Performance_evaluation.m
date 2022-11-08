@@ -23,6 +23,7 @@ function [test_score_dis,test_score_sim,y_stealth,y_effect,stealth_index, effect
 % 08/19/2022
 
 %% Testing performance with repect to the trained discriminators
+attack_indices = load("attack_support.mat").attack_indices;
 thresh_1 = thresholds(1);
 thresh_2 = thresholds(2);
 
@@ -80,7 +81,7 @@ test_score_sim = sum((f1_out<=0) & (f2_out<=0))/n_test;
 %% save testing data
 dir_dis = "test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/test_result_with_dis.mat";
 dir_mdl = "test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/test_result_with_mdl.mat";
-dir_spt = "../test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/attack_support.mat";
+dir_spt = "test_performance/"+num2str(length(attack_indices))+"/"+num2str(attack_indices)+"/attack_support.mat";
 save(dir_dis,'y_effect','y_stealth','-v7.3');
 save(dir_mdl,'effect_index','stealth_index','-v7.3');
 save(dir_spt,'attack_indices','-v7.3');

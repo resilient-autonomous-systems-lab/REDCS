@@ -50,7 +50,7 @@ for iter=1:length(attack_percentage_list)
             qm_dif = abs(y(:,1) + y(:,2) - q_ref)/abs(q_ref);
             q4_dif = abs(y(:,4) - q_ref)/abs(q_ref);
 
-            label = ((q1_dif > eta+0.2) | (qm_dif > eta+0.2) | (q4_dif > eta+0.2));
+            label = ((q1_dif > eta+0.1) | (qm_dif > eta+0.1) | (q4_dif > eta+0.1));
             attack_dataset_batch = [y,label];
             attack_dataset = [attack_dataset; attack_dataset_batch];
         end
