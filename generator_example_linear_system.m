@@ -1,6 +1,6 @@
-clc
-clear
 close all
+clear all
+clc
 
 detector_train_flag = 0;
 attack_percentage = 1;
